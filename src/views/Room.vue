@@ -2,14 +2,14 @@
     <v-container>
         <v-row justify="space-between">
             <v-card-title>{{ name }}</v-card-title>
-            <NewPlayer v-if="isOpened()" :roomId="id" />
+            <NewPlayer v-if="isOpened()" :roomId="Number(id)" />
         </v-row>
         <v-col>
-            <Player v-for="player in players" :player="player" :status="status" />
+            <Player v-for="player in players" :roomId="Number(id)" :player="player" :status="status" />
         </v-col>
         <v-col>
-            <PaymentInfo v-for="payment in payments" :playerName="payment.playerName" :amount="payment.amount"
-                :date="payment.date" />
+            <PaymentInfo v-for="payment in payments" :playerName="payment?.playerName" :amount="payment?.amount"
+                :date="payment?.date" />
         </v-col>
         <v-col>
             <v-btn v-if="isOpened()" block color="red-lighten-2" @click="closeRoom">Close room</v-btn>
@@ -36,11 +36,11 @@ const payments = ref();
 const status = ref();
 
 const props = defineProps<{
-    id: number
+    id: string
 }>();
 
 onMounted(async () => {
-    const room: Room = await roomController.getRoom(props.id);
+    const room: Room = await roomController.getRoom(Number(props.id));
     name.value = room.name;
     players.value = room.players;
     payments.value = getPayments(room);
@@ -48,20 +48,20 @@ onMounted(async () => {
 });
 
 const closeRoom = async () => {
-    await roomController.closeRoom(props.id);
+    await roomController.closeRoom(Number(props.id));
 
     router.go(0);
 };
 
 const getPayments = (room: Room) => {
     const mappedPayments = room.players.flatMap(player => {
-        return player.payments.map(payment => ({
+        return player.payments?.map(payment => ({
             id: payment.id,
             amount: payment.amount,
             date: formatDate(new Date(payment.createdAt)),
             playerName: player.name,
         }));
-    });
+    }).filter(payment => payment !== undefined);
     mappedPayments.sort((a, b) => a.id - b.id);
     return mappedPayments;
 };

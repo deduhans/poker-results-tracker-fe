@@ -3,7 +3,7 @@ import axiosClient from "../apiClient";
 import type { Player } from "@/types/player/Player";
 
 class PlayerController {
-    private readonly CONTROLLER = '/player';
+    private readonly CONTROLLER = '/players';
 
     async createPlayer(createPlayer: CreatePlayer): Promise<Player> {
         const url: string = `${this.CONTROLLER}/create`;

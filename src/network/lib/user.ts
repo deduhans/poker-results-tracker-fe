@@ -3,7 +3,7 @@ import axiosClient from "../apiClient";
 import type { User } from "@/types/user/User";
 
 class UserController {
-    private readonly CONTROLLER = '/user';
+    private readonly CONTROLLER = '/users';
 
     async createUser(createUser: CreateUser): Promise<User> {
         const url: string = `${this.CONTROLLER}`;

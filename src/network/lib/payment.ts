@@ -3,10 +3,10 @@ import axiosClient from "../apiClient";
 import type { Payment } from "@/types/payment/Payment";
 
 class PaymentController {
-    private readonly CONTROLLER = '/payment';
+    private readonly CONTROLLER = '/payments';
 
     async createPayment(createPayment: CreatePayment): Promise<Payment> {
-        const url: string = `${this.CONTROLLER}/create`;
+        const url: string = `${this.CONTROLLER}`;
 
         const response = await axiosClient.post(url, createPayment);
 

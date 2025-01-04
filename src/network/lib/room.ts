@@ -3,7 +3,7 @@ import axiosClient from "../apiClient";
 import type { CreateRoom } from "@/types/room/CreateRoom";
 
 class RoomController {
-    private readonly CONTROLLER: string = '/room';
+    private readonly CONTROLLER: string = '/rooms';
 
     async getRooms(): Promise<Room[]> {
         const url: string = `${this.CONTROLLER}`;
@@ -28,7 +28,8 @@ class RoomController {
 
     async closeRoom(id: number): Promise<void> {
         const url: string = `${this.CONTROLLER}/close/${id}`;
-        await axiosClient.patch(url);
+
+        await axiosClient.put(url);
     }
 }
 

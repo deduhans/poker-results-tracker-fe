@@ -4,6 +4,7 @@
             <v-col class="pa-0">
                 <v-card-title>{{ player.name }}</v-card-title>
                 <v-card-subtitle>Role: {{ player.role }}</v-card-subtitle>
+                <v-card-subtitle>Role: {{ totalSpend() }}</v-card-subtitle>
             </v-col>
         </template>
         <template v-slot:append>
@@ -26,6 +27,7 @@ const userStore = useUserStore();
 const router = useRouter();
 
 const props = defineProps<{
+    roomId: number,
     player: Player,
     status: any
 }>();
@@ -36,7 +38,7 @@ const createPayment = async () => {
     }
 
     const newPayment: CreatePayment = {
-        roomId: props.player.roomId,
+        roomId: props.roomId,
         playerId: props.player.id,
         amount: 50
     }
@@ -49,4 +51,16 @@ const createPayment = async () => {
 const isOpened = () => {
     return props.status === "opened";
 }
+
+const totalSpend = () => {
+    console.log(props.player);
+};
+
+const totalEarn = () => {
+
+};
+
+const totalChips = () => {
+
+};
 </script>
