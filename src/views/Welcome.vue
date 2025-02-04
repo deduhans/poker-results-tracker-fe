@@ -1,13 +1,18 @@
 <template>
-    <v-container fluid fill-height>
-        <v-row justify="center">
-            <v-col class="text-center">
-                <v-btn color="primary" @click="login">Log In</v-btn>
-                <v-btn color="secondary" @click="signup">Sign Up</v-btn>
+    <v-container class="mb-6">
+        <v-row align="center" style="height: 600px">
+            <v-col>
+                <v-row justify="center">
+                    <v-btn class="pa-2 ma-2" color="primary" @click="login" data-cy="logInButton">Log In</v-btn>
+                </v-row>
+                <v-row justify="center">
+                    <v-btn class="pa-2 ma-2" color="secondary" @click="signup" data-cy="signInButton">Sign Up</v-btn>
+                </v-row>
             </v-col>
         </v-row>
     </v-container>
 </template>
+
 
 <script lang="ts" setup>
 import { useRouter } from 'vue-router';

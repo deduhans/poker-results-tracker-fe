@@ -6,7 +6,7 @@ class PlayerController {
     private readonly CONTROLLER = '/players';
 
     async createPlayer(createPlayer: CreatePlayer): Promise<Player> {
-        const url: string = `${this.CONTROLLER}/create`;
+        const url: string = `${this.CONTROLLER}`;
 
         const response = await axiosClient.post(url, createPlayer);
 

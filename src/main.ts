@@ -22,6 +22,7 @@ const icons = {
 }
 
 watch(pinia.state, (state) => {
+    localStorage.setItem('room', JSON.stringify(state.room));
     localStorage.setItem('user', JSON.stringify(state.user));
 }, { deep: true });
 

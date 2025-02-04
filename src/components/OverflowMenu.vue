@@ -20,6 +20,6 @@ const userStore = useUserStore();
 
 const logout = () => {
     userStore.clearUser();
-    router.push({ name: "home" });
+    router.push({ name: "welcome" });
 }
 </script>

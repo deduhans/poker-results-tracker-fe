@@ -5,6 +5,16 @@
             <NewPlayer v-if="isOpened()" :roomId="Number(id)" />
         </v-row>
         <v-col>
+            <v-card>
+                <v-card-subtitle>Id: {{ id }}</v-card-subtitle>
+                <v-card-subtitle>Exchange: {{ exchange }}</v-card-subtitle>
+                <v-card-subtitle>Created: {{ created }}</v-card-subtitle>
+                <v-card-subtitle>Status: {{ status }}</v-card-subtitle>
+                <v-card-subtitle>Capacity: {{ capacity }}</v-card-subtitle>
+                <v-card-subtitle>Chips capacity: {{ chipsCapacity }}</v-card-subtitle>
+            </v-card>
+        </v-col>
+        <v-col>
             <Player v-for="player in players" :roomId="Number(id)" :player="player" :status="status" />
         </v-col>
         <v-col>
@@ -12,28 +22,36 @@
                 :date="payment?.date" />
         </v-col>
         <v-col>
-            <v-btn v-if="isOpened()" block color="red-lighten-2" @click="closeRoom">Close room</v-btn>
+            <CloseRoomPopup></CloseRoomPopup>
         </v-col>
     </v-container>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
+import CloseRoomPopup from '@/components/CloseRoomPopup.vue';
 import NewPlayer from '@/components/NewPlayer.vue';
 import PaymentInfo from '@/components/PaymentInfo.vue';
 import Player from '@/components/Player.vue';
 import RoomController from '@/network/lib/room';
+import { useRoomStore } from '@/stores/room';
 import type { Room } from '@/types/room/Room';
-import { onMounted, ref } from 'vue';
+import { onMounted, type PropType, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const roomController = new RoomController();
 
 const router = useRouter();
+const roomStore = useRoomStore();
 
 const name = ref();
 const players = ref();
 const payments = ref();
 const status = ref();
+const id = ref<number | null>(null);
+const exchange = ref();
+const created = ref();
+const capacity = ref();
+const chipsCapacity = ref();
 
 const props = defineProps<{
     id: string
@@ -41,20 +59,28 @@ const props = defineProps<{
 
 onMounted(async () => {
     const room: Room = await roomController.getRoom(Number(props.id));
+
+    roomStore.setRoom(room);
+
     name.value = room.name;
     players.value = room.players;
     payments.value = getPayments(room);
     status.value = room.status;
+    id.value = room.id;
+    exchange.value = room.exchange;
+    created.value = room.createdAt;
+    capacity.value = getCapacity(room);
+    chipsCapacity.value = getChipsCapacity(room);
 });
 
 const closeRoom = async () => {
-    await roomController.closeRoom(Number(props.id));
+    //await roomController.closeRoom(Number(props.id), un);
 
     router.go(0);
 };
 
-const getPayments = (room: Room) => {
-    const mappedPayments = room.players.flatMap(player => {
+const getPayments = (room: Room): PaymentDetails[] => {
+    const mappedPayments: PaymentDetails[] = room.players.flatMap(player => {
         return player.payments?.map(payment => ({
             id: payment.id,
             amount: payment.amount,
@@ -65,6 +91,14 @@ const getPayments = (room: Room) => {
     mappedPayments.sort((a, b) => a.id - b.id);
     return mappedPayments;
 };
+
+const getCapacity = (room: Room): number => {
+    return getPayments(room).reduce((sum, payment) => sum += payment.amount, 0);
+}
+
+const getChipsCapacity = (room: Room): number => {
+    return getCapacity(room) * room.exchange;
+}
 
 const formatDate = (date: Date) => {
     return `${date.getHours()}:${date.getMinutes()} ${date.getMonth()}/${date.getDate()}`;

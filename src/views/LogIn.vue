@@ -6,6 +6,8 @@
                 <v-text-field v-model="userName" label="Name" required></v-text-field>
                 <v-text-field v-model="password" label="Password" required></v-text-field>
             </v-form>
+            <v-alert v-if="error" density="compact" variant="outlined" text="Incorrect login or password"
+                type="error"></v-alert>
         </v-card-text>
 
         <v-card-actions>
@@ -31,6 +33,8 @@ const userName = ref('');
 const password = ref('');
 const valid = ref(false);
 
+const error = ref<boolean>(false);
+
 const login = async () => {
     try {
         const auth: Auth = {
@@ -42,8 +46,9 @@ const login = async () => {
         userStore.setUser({ userId: user.User.userId, name: user.User.userName });
 
         router.push({ name: 'home' });
-    } catch (error) {
-        console.error('Error login:', error);
+    } catch (e) {
+        error.value = true;
+        console.error('Error login:', e);
     }
 }
 </script>

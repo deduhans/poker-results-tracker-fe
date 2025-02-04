@@ -52,7 +52,7 @@ const createItem = async () => {
 
     const createRoomDto: CreateRoom = {
         name: name.value,
-        exchange: exchange.value || 10,
+        exchange: Number(exchange.value) || 10,
         hostId: userStore.userId
     }
     const room: Room = await roomController.createRoom(createRoomDto);

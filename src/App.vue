@@ -10,7 +10,9 @@
 <script lang="ts" setup>
 import Navbar from '@/components/Navbar.vue';
 import { useUserStore } from '@/stores/user';
+import { useRoomStore } from './stores/room';
 
+const roomStore = useRoomStore();
 const userStore = useUserStore();
 
 </script>
