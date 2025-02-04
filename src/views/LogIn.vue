@@ -1,16 +1,18 @@
 <template>
     <v-card class="mt-16">
-        <v-card-title class="text-center">Create User</v-card-title>
+        <v-card-title class="text-center">Log in</v-card-title>
         <v-card-text>
             <v-form ref="form" v-model="valid">
                 <v-text-field v-model="userName" label="Name" required></v-text-field>
                 <v-text-field v-model="password" label="Password" required></v-text-field>
             </v-form>
+            <v-alert v-if="error" density="compact" variant="outlined" text="Incorrect login or password"
+                type="error"></v-alert>
         </v-card-text>
 
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="createUser">Create</v-btn>
+            <v-btn color="primary" @click="login">Log in</v-btn>
         </v-card-actions>
     </v-card>
 </template>
@@ -19,9 +21,10 @@
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
 import { useUserStore } from '../stores/user';
-import UserController from '@/network/lib/user';
-import type { CreateUser } from '@/types/user/CreateUser';
-import type { User } from '@/types/user/User';
+import AuthController from '@/network/lib/auth';
+import type { Auth } from '@/types/auth/Auth';
+
+const authController = new AuthController();
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -30,21 +33,22 @@ const userName = ref('');
 const password = ref('');
 const valid = ref(false);
 
-const userController = new UserController();
+const error = ref<boolean>(false);
 
-const createUser = async () => {
+const login = async () => {
     try {
-        const user: CreateUser = {
+        const auth: Auth = {
             username: userName.value,
             password: password.value
         };
 
-        const newUser: User = await userController.createUser(user);
-        userStore.setUser({ userId: newUser.id, name: newUser.username });
+        const user: any = await authController.login(auth);
+        userStore.setUser({ userId: user.User.userId, name: user.User.userName });
 
         router.push({ name: 'home' });
-    } catch (error) {
-        console.error('Error creating user:', error);
+    } catch (e) {
+        error.value = true;
+        console.error('Error login:', e);
     }
-};
+}
 </script>

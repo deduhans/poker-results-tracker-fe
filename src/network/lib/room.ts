@@ -1,9 +1,10 @@
 import type { Room } from "@/types/room/Room";
 import axiosClient from "../apiClient";
 import type { CreateRoom } from "@/types/room/CreateRoom";
+import type { PlayerResult } from "@/types/player/PlayerResult";
 
 class RoomController {
-    private readonly CONTROLLER: string = '/room';
+    private readonly CONTROLLER: string = '/rooms';
 
     async getRooms(): Promise<Room[]> {
         const url: string = `${this.CONTROLLER}`;
@@ -20,15 +21,16 @@ class RoomController {
     }
 
     async createRoom(createRoom: CreateRoom): Promise<Room> {
-        const url: string = `${this.CONTROLLER}/create`;
+        const url: string = `${this.CONTROLLER}`;
         const response = await axiosClient.post(url, createRoom);
 
         return response.data as Room;
     }
 
-    async closeRoom(id: number): Promise<void> {
+    async closeRoom(id: number, playersResults: PlayerResult[]): Promise<void> {
         const url: string = `${this.CONTROLLER}/close/${id}`;
-        await axiosClient.patch(url);
+
+        await axiosClient.put(url, playersResults);
     }
 }
 

@@ -2,11 +2,16 @@ import { createRouter, createWebHistory, type Router, type RouteRecordRaw } from
 import Home from '@/views/Home.vue';
 import Room from '@/views/Room.vue';
 import SignUp from '@/views/SignUp.vue';
+import Welcome from '@/views/Welcome.vue';
+import LogIn from '@/views/LogIn.vue';
+import authGuard from './authGuard';
 
 const routes: RouteRecordRaw[] = [
-  { path: '/', name: 'home', component: Home },
-  { path: '/room/:id', name: 'room', props: true, component: Room },
-  { path: '/signUp', name: 'signUp', component: SignUp },
+  { path: '/welcome', name: 'welcome', component: Welcome },
+  { path: '/login', name: 'login', component: LogIn },
+  { path: '/signup', name: 'signup', component: SignUp },
+  { path: '/', name: 'home', component: Home, beforeEnter: authGuard },
+  { path: '/room/:id', name: 'room', props: true, component: Room, beforeEnter: authGuard },
 ]
 
 const router: Router = createRouter({
