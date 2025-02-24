@@ -1,3 +1,4 @@
+import type { User } from "@/types/user/User";
 import axiosClient from "../apiClient";
 import type { Auth } from "@/types/auth/Auth";
 
@@ -12,10 +13,25 @@ class AuthController {
         return response.data;
     }
 
-    async logout(): Promise<void> {
+    async logout(): Promise<boolean> {
         const url: string = `${this.CONTROLLER}/logout`;
 
-        await axiosClient.get(url);
+        const response = await axiosClient.get(url);
+
+        return response.data;
+    }
+
+    async sessionStatus(): Promise<User | null> {
+        const url: string = `${this.CONTROLLER}/sessionStatus`;
+
+        const response = await axiosClient.get(url)
+            .then(res => {
+                return res.data as User;
+            }).catch(() => {
+                return null;
+            });
+
+        return response;
     }
 }
 
