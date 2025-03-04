@@ -3,10 +3,10 @@
         <v-row align="center" style="height: 600px">
             <v-col>
                 <v-row justify="center">
-                    <v-btn class="pa-2 ma-2" color="primary" @click="login" data-cy="logInButton">Log In</v-btn>
+                    <v-btn class="pa-2 ma-2" color="primary" @click="login">Log In</v-btn>
                 </v-row>
                 <v-row justify="center">
-                    <v-btn class="pa-2 ma-2" color="secondary" @click="signup" data-cy="signInButton">Sign Up</v-btn>
+                    <v-btn class="pa-2 ma-2" color="secondary" @click="signup">Sign Up</v-btn>
                 </v-row>
             </v-col>
         </v-row>
