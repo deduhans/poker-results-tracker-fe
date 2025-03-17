@@ -24,6 +24,6 @@ const login = () => {
 };
 
 const signup = () => {
-    router.push({ name: 'signup' });
+    router.push({ name: 'register' });
 };
 </script>

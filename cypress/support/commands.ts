@@ -14,6 +14,32 @@ Cypress.Commands.add('dataCy', (value) => {
     return cy.get(`[data-cy="${value}"]`)
 });
 
+Cypress.Commands.add('fillLoginForm', (username: string, password: string) => {
+    cy.dataCy('username').find('input').clear().type(username);
+    cy.dataCy('password').find('input').clear().type(password);
+});
+
+Cypress.Commands.add('fillRegistrationForm', (username: string, password: string) => {
+    cy.dataCy('username').find('input').clear().type(username);
+    cy.dataCy('password').find('input').clear().type(password);
+    cy.dataCy('confirm-password').find('input').clear().type(password);
+});
+
+Cypress.Commands.add('shouldBeDisabled', (dataCyValue: string) => {
+    cy.dataCy(dataCyValue).should('have.class', 'v-input--disabled');
+    cy.dataCy(dataCyValue).find('input').should('be.disabled');
+});
+
+Cypress.Commands.add('shouldHaveError', (message: string) => {
+    cy.contains(message).should('be.visible');
+});
+
+Cypress.Commands.add('loginViaUI', (username: string, password: string) => {
+    cy.visit('/login');
+    cy.fillLoginForm(username, password);
+    cy.dataCy('submit').click();
+});
+
 Cypress.Commands.add('createUser', (user: CreateUser) => {
     return cy.request({
         method: 'POST',
@@ -89,6 +115,11 @@ declare global {
             createPayment(value: CreatePayment): Chainable<any>
             login(): Chainable<User>
             logout(): Chainable<void>
+            fillLoginForm(username: string, password: string): Chainable<void>
+            fillRegistrationForm(username: string, password: string): Chainable<void>
+            shouldBeDisabled(dataCyValue: string): Chainable<void>
+            shouldHaveError(message: string): Chainable<void>
+            loginViaUI(username: string, password: string): Chainable<void>
         }
     }
 }

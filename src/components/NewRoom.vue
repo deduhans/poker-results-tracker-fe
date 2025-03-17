@@ -1,19 +1,80 @@
 <template>
-    <v-btn @click="openDialog">Add new</v-btn>
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-btn
+        @click="openDialog"
+        color="primary"
+        prepend-icon="mdi-plus"
+        data-cy="new-room-button"
+    >
+        New Room
+    </v-btn>
+
+    <v-dialog
+        v-model="dialog"
+        max-width="500px"
+        :persistent="loading"
+    >
         <v-card>
-            <v-card-title>Create Item</v-card-title>
+            <v-card-title class="text-h5">Create New Room</v-card-title>
+
             <v-card-text>
-                <v-form ref="form" v-model="valid">
-                    <v-text-field v-model="name" label="Name" required></v-text-field>
-                    <v-text-field v-model="exchange" label="Exchange" type="number" required></v-text-field>
+                <v-alert
+                    v-if="error"
+                    type="error"
+                    variant="outlined"
+                    density="compact"
+                    class="mb-4"
+                    data-cy="error-alert"
+                >
+                    {{ errorMessage }}
+                </v-alert>
+
+                <v-form
+                    ref="form"
+                    v-model="valid"
+                    @submit.prevent="createRoom"
+                >
+                    <v-text-field
+                        v-model="name"
+                        label="Room Name"
+                        :rules="nameRules"
+                        required
+                        data-cy="room-name"
+                        :disabled="loading"
+                    ></v-text-field>
+
+                    <v-text-field
+                        v-model="exchange"
+                        label="Exchange Rate (€)"
+                        type="number"
+                        :rules="exchangeRules"
+                        required
+                        data-cy="room-exchange"
+                        :disabled="loading"
+                        hint="Minimum bet amount in euros"
+                        persistent-hint
+                    ></v-text-field>
                 </v-form>
             </v-card-text>
 
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary" @click="createItem">Create</v-btn>
-                <v-btn color="grey" @click="closeDialog">Cancel</v-btn>
+                <v-btn
+                    color="grey"
+                    @click="closeDialog"
+                    :disabled="loading"
+                    data-cy="cancel-button"
+                >
+                    Cancel
+                </v-btn>
+                <v-btn
+                    color="primary"
+                    @click="createRoom"
+                    :loading="loading"
+                    :disabled="!valid || loading"
+                    data-cy="create-button"
+                >
+                    Create
+                </v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -28,7 +89,6 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const roomController = new RoomController();
-
 const userStore = useUserStore();
 const router = useRouter();
 
@@ -36,27 +96,67 @@ const dialog = ref(false);
 const name = ref('');
 const exchange = ref<number | null>(null);
 const valid = ref(false);
+const loading = ref(false);
+const error = ref(false);
+const errorMessage = ref('');
+
+const nameRules = [
+    (v: string) => !!v || 'Room name is required',
+    (v: string) => (v && v.length >= 3) || 'Name must be at least 3 characters',
+    (v: string) => (v && v.length <= 50) || 'Name must be less than 50 characters',
+];
+
+const exchangeRules = [
+    (v: number | null) => v !== null || 'Exchange rate is required',
+    (v: number | null) => (v !== null && v > 0) || 'Exchange rate must be greater than 0',
+    (v: number | null) => (v !== null && v <= 1000) || 'Exchange rate must be less than 1000€',
+];
 
 const openDialog = () => {
+    resetForm();
     dialog.value = true;
-}
+};
 
 const closeDialog = () => {
-    dialog.value = false;
-}
+    if (!loading.value) {
+        dialog.value = false;
+        resetForm();
+    }
+};
 
-const createItem = async () => {
-    if (!userStore.userId) {
+const resetForm = () => {
+    name.value = '';
+    exchange.value = null;
+    error.value = false;
+    errorMessage.value = '';
+    valid.value = false;
+};
+
+const createRoom = async () => {
+    if (!valid.value || !userStore.userId) {
         return;
     }
 
-    const createRoomDto: CreateRoom = {
-        name: name.value,
-        exchange: Number(exchange.value) || 10,
-        hostId: userStore.userId
-    }
-    const room: Room = await roomController.createRoom(createRoomDto);
+    loading.value = true;
+    error.value = false;
+    errorMessage.value = '';
 
-    router.push({ name: 'room', params: { id: room.id } })
+    try {
+        const createRoomDto: CreateRoom = {
+            name: name.value.trim(),
+            exchange: Number(exchange.value) || 10,
+            hostId: userStore.userId
+        };
+
+        const room: Room = await roomController.createRoom(createRoomDto);
+        dialog.value = false;
+        router.push({ name: 'room', params: { id: room.id } });
+    } catch (e: any) {
+        error.value = true;
+        errorMessage.value = e.response?.data?.message || 'Failed to create room';
+        console.error('Error creating room:', e);
+    } finally {
+        loading.value = false;
+    }
 };
 </script>

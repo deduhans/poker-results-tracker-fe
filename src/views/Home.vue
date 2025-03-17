@@ -1,12 +1,39 @@
 <template>
-    <v-container>
-        <v-row justify="space-between">
-            <v-card-title>Rooms</v-card-title>
+    <v-container data-cy="home-page">
+        <v-row justify="space-between" align="center" class="mb-4">
+            <v-card-title class="text-h4">Rooms</v-card-title>
             <NewRoom />
         </v-row>
-        <v-col>
-            <RoomList :rooms="openRooms" listName="Opened" />
-            <RoomList :rooms="closedRooms" listName="Closed" />
+
+        <v-alert
+            v-if="error"
+            type="error"
+            variant="outlined"
+            density="compact"
+            class="mb-4"
+            data-cy="error-alert"
+        >
+            {{ errorMessage }}
+        </v-alert>
+
+        <v-progress-linear
+            v-if="loading"
+            indeterminate
+            color="primary"
+            data-cy="loading-indicator"
+        ></v-progress-linear>
+
+        <v-col v-else>
+            <RoomList 
+                :rooms="openRooms || []"
+                listName="Open Rooms"
+                data-cy="open-rooms"
+            />
+            <RoomList 
+                :rooms="closedRooms || []"
+                listName="Closed Rooms"
+                data-cy="closed-rooms"
+            />
         </v-col>
     </v-container>
 </template>
@@ -22,11 +49,29 @@ const roomController: RoomController = new RoomController();
 
 const openRooms = ref<Room[]>();
 const closedRooms = ref<Room[]>();
+const loading = ref(true);
+const error = ref(false);
+const errorMessage = ref('');
 
-onMounted(async () => {
-    const response: Room[] = await roomController.getRooms();
+const loadRooms = async () => {
+    loading.value = true;
+    error.value = false;
+    errorMessage.value = '';
 
-    openRooms.value = response.filter(x => x.status === 'opened');
-    closedRooms.value = response.filter(x => x.status === 'closed');
+    try {
+        const response = await roomController.getRooms();
+        openRooms.value = response.filter(room => room.status === 'opened');
+        closedRooms.value = response.filter(room => room.status === 'closed');
+    } catch (e: any) {
+        error.value = true;
+        errorMessage.value = e.response?.data?.message || 'Failed to load rooms';
+        console.error('Error loading rooms:', e);
+    } finally {
+        loading.value = false;
+    }
+};
+
+onMounted(() => {
+    loadRooms();
 })
 </script>

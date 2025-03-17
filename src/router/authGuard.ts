@@ -15,7 +15,7 @@ const authGuard: NavigationGuard = (to, from, next) => {
                 useUserStore().setUser({ userId: user.userId, name: user.username });
                 next();
             } else {
-                next({ name: 'welcome' });
+                next({ name: 'login' });
             }
         })
     }

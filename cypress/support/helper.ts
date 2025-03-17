@@ -6,10 +6,13 @@ import type { CreatePayment } from '../../src/types/payment/CreatePayment';
 import { PaymentTypeEnum } from '../../src/types/payment/PaymentTypeEnum';
 
 export function getUser(user?: Partial<CreateUser>): CreateUser {
-    const newUser: CreateUser = {
-        username: faker.internet.username(),
-        password: faker.internet.password()
-    };
+    let username = 'user_' + faker.internet.username()
+        .replace(/[^a-zA-Z0-9_-]/g, '')
+        .slice(0, 20);
+
+    const password = 'Pass' + faker.number.int({ min: 10000, max: 99999 });
+
+    const newUser: CreateUser = { username, password };
 
     if (user) {
         Object.assign(newUser, user);

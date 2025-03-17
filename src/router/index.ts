@@ -10,7 +10,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/welcome', name: 'welcome', component: Welcome },
   { path: '/login', name: 'login', component: LogIn },
   { path: '/register', name: 'register', component: Register },
-  { path: '/', name: 'home', component: Home, beforeEnter: authGuard },
+  { path: '/home', name: 'home', component: Home, beforeEnter: authGuard },
   { path: '/room/:id', name: 'room', props: true, component: Room, beforeEnter: authGuard },
 ]
 

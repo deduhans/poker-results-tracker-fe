@@ -1,6 +1,6 @@
 <template>
     <v-app-bar>
-        <template v-slot:prepend>
+        <template v-if="router.currentRoute.value.name !== 'home'">
             <v-btn icon="mdi-arrow-left" @click="redirectBack()"></v-btn>
         </template>
 
@@ -13,8 +13,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useUserStore } from "@/stores/user";
 import { useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";
 import OverflowMenu from "@/components/OverflowMenu.vue";
 
 const router = useRouter();
@@ -22,7 +22,7 @@ const userStore = useUserStore();
 
 const redirectBack = () => {
     router.back();
-}
+};
 </script>
 
 <style></style>
