@@ -45,34 +45,34 @@ const emit = defineEmits<{
 const localValue = ref<number | null>(props.value);
 
 watch(() => props.value, (newValue) => {
-    if (newValue !== localValue.value) {
-        localValue.value = newValue;
-    }
+  if (newValue !== localValue.value) {
+    localValue.value = newValue;
+  }
 });
 
 const updateValue = (value: number | string | null) => {
-    emit('update:value', value === null || value === '' ? null : Number(value));
+  emit('update:value', value === null || value === '' ? null : Number(value));
 };
 
 const income = computed(() => {
-    return ((localValue.value ?? 0) - props.initialValue) / props.exchangeRate;
+  return ((localValue.value ?? 0) - props.initialValue) / props.exchangeRate;
 });
 
 const incomeColor = computed(() => {
-    if (income.value > 0) return 'success';
-    if (income.value < 0) return 'error';
-    return 'medium-emphasis';
+  if (income.value > 0) return 'success';
+  if (income.value < 0) return 'error';
+  return 'medium-emphasis';
 });
 
 const formattedIncome = computed(() => {
-    const prefix = income.value > 0 ? '+' : '';
-    return `${prefix}${income.value.toFixed(2)}€`;
+  const prefix = income.value > 0 ? '+' : '';
+  return `${prefix}${income.value.toFixed(2)}€`;
 });
 
 const validationRules = [
-    (v: any) => !!v || 'Required',
-    (v: any) => v >= 0 || 'Must be positive',
-    (v: any) => Number.isInteger(v) || 'Must be a whole number'
+  (v: any) => !!v || 'Required',
+  (v: any) => v >= 0 || 'Must be positive',
+  (v: any) => Number.isInteger(v) || 'Must be a whole number',
 ];
 </script>
 

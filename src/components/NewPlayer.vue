@@ -43,20 +43,20 @@ const dialog = ref(false);
 const name = ref('');
 
 const createPlayer = async () => {
-    if (!userStore.userId) {
-        return;
-    }
+  if (!userStore.userId) {
+    return;
+  }
 
-    const newPlayer: CreatePlayer = {
-        roomId: props.roomId,
-        userId: userStore.userId,
-        name: name.value
-    }
+  const newPlayer: CreatePlayer = {
+    roomId: props.roomId,
+    userId: userStore.userId,
+    name: name.value,
+  };
 
-    await playerController.createPlayer(newPlayer);
-    const updatedRoom = await roomController.getRoom(props.roomId);
-    roomStore.setRoom(updatedRoom);
-    dialog.value = false;
-    name.value = '';
+  await playerController.createPlayer(newPlayer);
+  const updatedRoom = await roomController.getRoom(props.roomId);
+  roomStore.setRoom(updatedRoom);
+  dialog.value = false;
+  name.value = '';
 };
 </script>

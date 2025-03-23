@@ -1,4 +1,4 @@
-import { PaymentTypeEnum } from "./PaymentTypeEnum";
+import { PaymentTypeEnum } from './PaymentTypeEnum';
 
 export interface Payment {
     id: number;

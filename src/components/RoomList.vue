@@ -1,5 +1,5 @@
 <template>
-    <v-card class="my-3" :data-cy="`${listName.toLowerCase()}-list`">
+    <v-card class="my-3">
         <v-card-title class="text-h6">{{ listName }}</v-card-title>
         
         <v-container v-if="isListEmpty" class="d-flex justify-center">
@@ -11,7 +11,6 @@
                 v-for="room in rooms"
                 :key="room.id"
                 @click="handleRoomClick(room)"
-                :data-cy="`room-${room.id}`"
                 class="room-item"
             >
                 <template v-slot:prepend>
@@ -52,11 +51,11 @@ const props = defineProps<{
 const router = useRouter();
 
 const isListEmpty = computed(() => {
-    return !props.rooms || props.rooms.length === 0;
+  return !props.rooms || props.rooms.length === 0;
 });
 
 const handleRoomClick = (room: Room) => {
-    router.push({ name: 'room', params: { id: room.id } });
+  router.push({ name: 'room', params: { id: room.id } });
 };
 </script>
 

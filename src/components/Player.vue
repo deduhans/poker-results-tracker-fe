@@ -43,27 +43,27 @@ const props = defineProps<{
 }>();
 
 const createPayment = async () => {
-    if (!userStore.userId) {
-        return;
-    }
+  if (!userStore.userId) {
+    return;
+  }
 
-    const newPayment: CreatePayment = {
-        roomId: props.roomId,
-        playerId: props.player.id,
-        amount: 50,
-        type: PaymentTypeEnum.Outcome
-    }
+  const newPayment: CreatePayment = {
+    roomId: props.roomId,
+    playerId: props.player.id,
+    amount: 50,
+    type: PaymentTypeEnum.Outcome,
+  };
 
-    await paymentController.createPayment(newPayment);
-    const updatedRoom = await roomController.getRoom(props.roomId);
-    roomStore.setRoom(updatedRoom);
+  await paymentController.createPayment(newPayment);
+  const updatedRoom = await roomController.getRoom(props.roomId);
+  roomStore.setRoom(updatedRoom);
 };
 
 const isOpened = () => {
-    return props.status === "opened";
-}
+  return props.status === 'opened';
+};
 
 const totalSpend = () => {
-    return props.player.payments?.reduce((sum, payment) => sum += payment.amount, 0) || 0;
+  return props.player.payments?.reduce((sum, payment) => sum += payment.amount, 0) || 0;
 };
 </script>

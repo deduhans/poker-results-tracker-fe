@@ -1,5 +1,5 @@
-import type { Player } from "../player/Player";
-import type { RoomStatusEnum } from "./RoomStatusEnum";
+import type { Player } from '../player/Player';
+import type { RoomStatusEnum } from './RoomStatusEnum';
 
 export interface Room {
     id: number;

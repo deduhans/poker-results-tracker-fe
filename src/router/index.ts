@@ -12,11 +12,11 @@ const routes: RouteRecordRaw[] = [
   { path: '/register', name: 'register', component: Register },
   { path: '/home', name: 'home', component: Home, beforeEnter: authGuard },
   { path: '/room/:id', name: 'room', props: true, component: Room, beforeEnter: authGuard },
-]
+];
 
 const router: Router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
-})
+});
 
-export default router
+export default router;

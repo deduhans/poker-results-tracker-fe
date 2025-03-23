@@ -8,7 +8,6 @@
                     label="Username"
                     :rules="userNameRules"
                     required
-                    data-cy="username"
                     :disabled="loading"
                 ></v-text-field>
 
@@ -20,7 +19,6 @@
                     :type="showPassword ? 'text' : 'password'"
                     :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                     @click:append="showPassword = !showPassword"
-                    data-cy="password"
                     :disabled="loading"
                 ></v-text-field>
             </v-form>
@@ -30,7 +28,6 @@
                 variant="outlined"
                 :text="errorMessage"
                 type="error"
-                data-cy="error-alert"
             ></v-alert>
         </v-card-text>
 
@@ -38,14 +35,12 @@
             <v-btn
                 color="secondary"
                 @click="register"
-                data-cy="register"
                 :disabled="loading"
             >Register</v-btn>
             <v-spacer></v-spacer>
             <v-btn
                 color="primary"
                 @click="login"
-                data-cy="submit"
                 :loading="loading"
                 :disabled="!valid || loading"
             >Log in</v-btn>
@@ -73,45 +68,45 @@ const error = ref<boolean>(false);
 const errorMessage = ref<string>('');
 
 const userNameRules = [
-    (v: string) => !!v || 'Username is required',
-    (v: string) => (v && v.length >= 3) || 'Username must be at least 3 characters',
-    (v: string) => (v && v.length <= 20) || 'Username must be less than 20 characters',
-    (v: string) => /^[a-zA-Z0-9_-]+$/.test(v) || 'Username can only contain letters, numbers, underscores and dashes',
+  (v: string) => !!v || 'Username is required',
+  (v: string) => (v && v.length >= 3) || 'Username must be at least 3 characters',
+  (v: string) => (v && v.length <= 20) || 'Username must be less than 20 characters',
+  (v: string) => /^[a-zA-Z0-9_-]+$/.test(v) || 'Username can only contain letters, numbers, underscores and dashes',
 ];
 
 const passwordRules = [
-    (v: string) => !!v || 'Password is required',
-    (v: string) => (v && v.length >= 8) || 'Password must be at least 8 characters',
-    (v: string) => /[A-Za-z]/.test(v) || 'Password must contain at least one letter',
-    (v: string) => /[0-9]/.test(v) || 'Password must contain at least one number',
+  (v: string) => !!v || 'Password is required',
+  (v: string) => (v && v.length >= 8) || 'Password must be at least 8 characters',
+  (v: string) => /[A-Za-z]/.test(v) || 'Password must contain at least one letter',
+  (v: string) => /[0-9]/.test(v) || 'Password must contain at least one number',
 ];
 
 const register = () => {
-    router.push({ name: 'register' });
+  router.push({ name: 'register' });
 };
 
 const login = async () => {
-    if (!valid.value) return;
+  if (!valid.value) return;
 
-    loading.value = true;
-    error.value = false;
-    errorMessage.value = '';
+  loading.value = true;
+  error.value = false;
+  errorMessage.value = '';
 
-    try {
-        const auth: Auth = {
-            username: userName.value,
-            password: password.value
-        };
+  try {
+    const auth: Auth = {
+      username: userName.value,
+      password: password.value,
+    };
 
-        const user = await authController.login(auth);
-        userStore.setUser({ userId: user.userId, name: user.username });
-        router.push({ name: 'home' });
-    } catch (e: any) {
-        error.value = true;
-        errorMessage.value = e.response?.data?.message || 'Login failed. Please check your credentials.';
-        console.error('Error login:', e);
-    } finally {
-        loading.value = false;
-    }
+    const user = await authController.login(auth);
+    userStore.setUser({ userId: user.userId, name: user.username });
+    router.push({ name: 'home' });
+  } catch (e: any) {
+    error.value = true;
+    errorMessage.value = e.response?.data?.message || 'Login failed. Please check your credentials.';
+    console.error('Error login:', e);
+  } finally {
+    loading.value = false;
+  }
 };
 </script>

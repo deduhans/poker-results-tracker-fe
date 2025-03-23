@@ -1,7 +1,7 @@
 <template>
-    <v-menu>
+    <v-menu activator="parent">
         <template v-slot:activator="{ props }">
-            <v-btn data-cy="overflow-menu" icon="mdi-dots-vertical" variant="text" v-bind="props"></v-btn>
+            <v-btn icon="mdi-dots-vertical" variant="text" v-bind="props"></v-btn>
         </template>
         <v-list>
             <v-list-item>
@@ -16,17 +16,10 @@
                 </v-list-item-title>
             </v-list-item>
             <v-divider></v-divider>
-            <v-list-item>
-                <v-list-item-title>
-                    <v-btn 
-                        variant="text" 
-                        prepend-icon="mdi-logout" 
-                        data-cy="logout-button" 
-                        @click="logout"
-                    >
-                        Logout
-                    </v-btn>
-                </v-list-item-title>
+            <v-list-item
+                @click="logout"
+            >
+                <v-list-item-title>Logout</v-list-item-title>
             </v-list-item>
         </v-list>
     </v-menu>
@@ -44,8 +37,8 @@ const userStore = useUserStore();
 const themeStore = useThemeStore();
 
 const logout = () => {
-    logoutController.logout();
-    userStore.clearUser();
-    router.push({ name: "login" });
-}
+  logoutController.logout();
+  userStore.clearUser();
+  router.push({ name: 'login' });
+};
 </script>

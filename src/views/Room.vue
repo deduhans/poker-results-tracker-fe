@@ -97,7 +97,7 @@ const name = ref();
 const players = ref();
 const payments = ref();
 const status = ref();
-const id = ref<number | null>(null);
+const roomId = ref<number | null>(null);
 const exchange = ref();
 const created = ref();
 const capacity = ref();
@@ -108,68 +108,68 @@ const props = defineProps<{
 }>();
 
 const updateRoom = async () => {
-    const room: Room = await roomController.getRoom(Number(props.id));
-    roomStore.setRoom(room);
+  const room: Room = await roomController.getRoom(Number(props.id));
+  roomStore.setRoom(room);
 
-    name.value = room.name;
-    players.value = room.players;
-    payments.value = getPayments(room);
-    status.value = room.status;
-    id.value = room.id;
-    exchange.value = room.exchange;
-    created.value = formatDate(new Date(room.createdAt));
-    capacity.value = getCapacity(room);
-    chipsCapacity.value = getChipsCapacity(room);
+  name.value = room.name;
+  players.value = room.players;
+  payments.value = getPayments(room);
+  status.value = room.status;
+  roomId.value = room.id;
+  exchange.value = room.exchange;
+  created.value = formatDate(new Date(room.createdAt));
+  capacity.value = getCapacity(room);
+  chipsCapacity.value = getChipsCapacity(room);
 };
 
 onMounted(updateRoom);
 
 // Watch for room store changes
 watch(() => roomStore.room, (newRoom) => {
-    if (newRoom) {
-        name.value = newRoom.name;
-        players.value = newRoom.players;
-        payments.value = getPayments(newRoom);
-        status.value = newRoom.status;
-        id.value = newRoom.id;
-        exchange.value = newRoom.exchange;
-        created.value = formatDate(new Date(newRoom.createdAt));
-        capacity.value = getCapacity(newRoom);
-        chipsCapacity.value = getChipsCapacity(newRoom);
-    }
+  if (newRoom) {
+    name.value = newRoom.name;
+    players.value = newRoom.players;
+    payments.value = getPayments(newRoom);
+    status.value = newRoom.status;
+    roomId.value = newRoom.id;
+    exchange.value = newRoom.exchange;
+    created.value = formatDate(new Date(newRoom.createdAt));
+    capacity.value = getCapacity(newRoom);
+    chipsCapacity.value = getChipsCapacity(newRoom);
+  }
 });
 
 const getPayments = (room: Room): PaymentDetails[] => {
-    const mappedPayments: PaymentDetails[] = room.players.flatMap(player => {
-        return player.payments?.map(payment => ({
-            id: payment.id,
-            amount: payment.amount,
-            date: formatDate(new Date(payment.createdAt)),
-            playerName: player.name,
-            type: payment.type as PaymentTypeEnum
-        }));
-    }).filter(payment => payment !== undefined);
-    mappedPayments.sort((a, b) => a.id - b.id);
-    return mappedPayments;
+  const mappedPayments: PaymentDetails[] = room.players.flatMap((player) => {
+    return player.payments?.map((payment) => ({
+      id: payment.id,
+      amount: payment.amount,
+      date: formatDate(new Date(payment.createdAt)),
+      playerName: player.name,
+      type: payment.type as PaymentTypeEnum,
+    }));
+  }).filter((payment) => payment !== undefined);
+  mappedPayments.sort((a, b) => a.id - b.id);
+  return mappedPayments;
 };
 
 const getCapacity = (room: Room): number => {
-    return getPayments(room).reduce((sum, payment) => sum += payment.amount, 0);
-}
+  return getPayments(room).reduce((sum, payment) => sum += payment.amount, 0);
+};
 
 const getChipsCapacity = (room: Room): number => {
-    return getCapacity(room) * room.exchange;
-}
+  return getCapacity(room) * room.exchange;
+};
 
 const formatDate = (date: Date) => {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${hours}:${minutes} ${month}/${day}`;
-}
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${hours}:${minutes} ${month}/${day}`;
+};
 
 const isOpened = () => {
-    return status.value === "opened";
-}
+  return status.value === 'opened';
+};
 </script>

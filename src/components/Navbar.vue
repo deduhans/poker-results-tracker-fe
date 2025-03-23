@@ -13,15 +13,15 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
-import { useUserStore } from "@/stores/user";
-import OverflowMenu from "@/components/OverflowMenu.vue";
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
+import OverflowMenu from '@/components/OverflowMenu.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
 
 const redirectBack = () => {
-    router.back();
+  router.back();
 };
 </script>
 

@@ -1,5 +1,5 @@
-import type { Payment } from "../payment/Payment";
-import type { PlayerRoleEnum } from "./PlayerRole";
+import type { Payment } from '../payment/Payment';
+import type { PlayerRoleEnum } from './PlayerRole';
 
 export interface Player {
     id: number;

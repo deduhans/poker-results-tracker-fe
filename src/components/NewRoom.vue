@@ -3,7 +3,6 @@
         @click="openDialog"
         color="primary"
         prepend-icon="mdi-plus"
-        data-cy="new-room-button"
     >
         New Room
     </v-btn>
@@ -23,7 +22,6 @@
                     variant="outlined"
                     density="compact"
                     class="mb-4"
-                    data-cy="error-alert"
                 >
                     {{ errorMessage }}
                 </v-alert>
@@ -38,7 +36,6 @@
                         label="Room Name"
                         :rules="nameRules"
                         required
-                        data-cy="room-name"
                         :disabled="loading"
                     ></v-text-field>
 
@@ -48,7 +45,6 @@
                         type="number"
                         :rules="exchangeRules"
                         required
-                        data-cy="room-exchange"
                         :disabled="loading"
                         hint="Minimum bet amount in euros"
                         persistent-hint
@@ -62,7 +58,6 @@
                     color="grey"
                     @click="closeDialog"
                     :disabled="loading"
-                    data-cy="cancel-button"
                 >
                     Cancel
                 </v-btn>
@@ -71,7 +66,6 @@
                     @click="createRoom"
                     :loading="loading"
                     :disabled="!valid || loading"
-                    data-cy="create-button"
                 >
                     Create
                 </v-btn>
@@ -101,62 +95,62 @@ const error = ref(false);
 const errorMessage = ref('');
 
 const nameRules = [
-    (v: string) => !!v || 'Room name is required',
-    (v: string) => (v && v.length >= 3) || 'Name must be at least 3 characters',
-    (v: string) => (v && v.length <= 50) || 'Name must be less than 50 characters',
+  (v: string) => !!v || 'Room name is required',
+  (v: string) => (v && v.length >= 3) || 'Name must be at least 3 characters',
+  (v: string) => (v && v.length <= 50) || 'Name must be less than 50 characters',
 ];
 
 const exchangeRules = [
-    (v: number | null) => v !== null || 'Exchange rate is required',
-    (v: number | null) => (v !== null && v > 0) || 'Exchange rate must be greater than 0',
-    (v: number | null) => (v !== null && v <= 1000) || 'Exchange rate must be less than 1000€',
+  (v: number | null) => v !== null || 'Exchange rate is required',
+  (v: number | null) => (v !== null && v > 0) || 'Exchange rate must be greater than 0',
+  (v: number | null) => (v !== null && v <= 1000) || 'Exchange rate must be less than 1000€',
 ];
 
 const openDialog = () => {
-    resetForm();
-    dialog.value = true;
+  resetForm();
+  dialog.value = true;
 };
 
 const closeDialog = () => {
-    if (!loading.value) {
-        dialog.value = false;
-        resetForm();
-    }
+  if (!loading.value) {
+    dialog.value = false;
+    resetForm();
+  }
 };
 
 const resetForm = () => {
-    name.value = '';
-    exchange.value = null;
-    error.value = false;
-    errorMessage.value = '';
-    valid.value = false;
+  name.value = '';
+  exchange.value = null;
+  error.value = false;
+  errorMessage.value = '';
+  valid.value = false;
 };
 
 const createRoom = async () => {
-    if (!valid.value || !userStore.userId) {
-        return;
-    }
+  if (!valid.value || !userStore.userId) {
+    return;
+  }
 
-    loading.value = true;
-    error.value = false;
-    errorMessage.value = '';
+  loading.value = true;
+  error.value = false;
+  errorMessage.value = '';
 
-    try {
-        const createRoomDto: CreateRoom = {
-            name: name.value.trim(),
-            exchange: Number(exchange.value) || 10,
-            hostId: userStore.userId
-        };
+  try {
+    const createRoomDto: CreateRoom = {
+      name: name.value.trim(),
+      exchange: Number(exchange.value) || 10,
+      hostId: userStore.userId,
+    };
 
-        const room: Room = await roomController.createRoom(createRoomDto);
-        dialog.value = false;
-        router.push({ name: 'room', params: { id: room.id } });
-    } catch (e: any) {
-        error.value = true;
-        errorMessage.value = e.response?.data?.message || 'Failed to create room';
-        console.error('Error creating room:', e);
-    } finally {
-        loading.value = false;
-    }
+    const room: Room = await roomController.createRoom(createRoomDto);
+    dialog.value = false;
+    router.push({ name: 'room', params: { id: room.id } });
+  } catch (e: any) {
+    error.value = true;
+    errorMessage.value = e.response?.data?.message || 'Failed to create room';
+    console.error('Error creating room:', e);
+  } finally {
+    loading.value = false;
+  }
 };
 </script>

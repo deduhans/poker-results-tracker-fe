@@ -78,74 +78,74 @@ const exchangeRate = ref(0);
 const playerRows = ref<InstanceType<typeof PlayerDistributionRow>[]>([]);
 
 const openDialog = () => {
-    const room = roomStore.room;
-    if (!room) return;
+  const room = roomStore.room;
+  if (!room) return;
 
-    exchangeRate.value = room.exchange;
-    totalChipsCapacity.value = calculateTotalChips(room.players, room.exchange);
+  exchangeRate.value = room.exchange;
+  totalChipsCapacity.value = calculateTotalChips(room.players, room.exchange);
 
-    playersResults.value = room.players.map(player => {
-        const { initialValue } = calculatePlayerChips(player, room.exchange);
-        return {
-            id: player.id,
-            name: player.name,
-            value: 0,
-            isHost: player.role === PlayerRoleEnum.Host,
-            initialValue
-        };
-    });
+  playersResults.value = room.players.map((player) => {
+    const { initialValue } = calculatePlayerChips(player, room.exchange);
+    return {
+      id: player.id,
+      name: player.name,
+      value: 0,
+      isHost: player.role === PlayerRoleEnum.Host,
+      initialValue,
+    };
+  });
 
-    dialog.value = true;
-    // Focus first input on next tick after dialog is shown
-    setTimeout(() => {
-        const firstInput = document.querySelector('.chips-input input') as HTMLInputElement;
-        if (firstInput) firstInput.focus();
-    }, 100);
-}
+  dialog.value = true;
+  // Focus first input on next tick after dialog is shown
+  setTimeout(() => {
+    const firstInput = document.querySelector('.chips-input input') as HTMLInputElement;
+    if (firstInput) firstInput.focus();
+  }, 100);
+};
 
 const focusNextInput = (currentIndex: number) => {
-    const nextIndex = currentIndex + 1;
-    if (nextIndex < playersResults.value.length) {
-        const nextInput = document.querySelectorAll('.chips-input input')[nextIndex] as HTMLInputElement;
-        if (nextInput) nextInput.focus();
-    }
+  const nextIndex = currentIndex + 1;
+  if (nextIndex < playersResults.value.length) {
+    const nextInput = document.querySelectorAll('.chips-input input')[nextIndex] as HTMLInputElement;
+    if (nextInput) nextInput.focus();
+  }
 };
 
 const totalValue = computed(() => {
-    return playersResults.value.reduce((sum, player) => sum + (player.value || 0), 0);
+  return playersResults.value.reduce((sum, player) => sum + (player.value || 0), 0);
 });
 
 const canCloseRoom = computed(() => {
-    return totalValue.value === totalChipsCapacity.value &&
-        playersResults.value.every(player =>
-            player.value >= 0 && Number.isInteger(player.value)
+  return totalValue.value === totalChipsCapacity.value &&
+        playersResults.value.every((player) =>
+          player.value >= 0 && Number.isInteger(player.value),
         );
 });
 
 const closeRoom = async () => {
-    if (!roomStore.room || !canCloseRoom.value) return;
+  if (!roomStore.room || !canCloseRoom.value) return;
 
-    isClosing.value = true;
-    try {
-        const results: PlayerResult[] = playersResults.value.map(player => ({
-            id: player.id,
-            income: player.value / exchangeRate.value
-        }));
+  isClosing.value = true;
+  try {
+    const results: PlayerResult[] = playersResults.value.map((player) => ({
+      id: player.id,
+      income: player.value / exchangeRate.value,
+    }));
 
-        await roomController.closeRoom(roomStore.room.id, results);
-        const updatedRoom = await roomController.getRoom(roomStore.room.id);
-        roomStore.setRoom(updatedRoom);
-        dialog.value = false;
-    } catch (error) {
-        console.error('Failed to close room:', error);
-    } finally {
-        isClosing.value = false;
-    }
+    await roomController.closeRoom(roomStore.room.id, results);
+    const updatedRoom = await roomController.getRoom(roomStore.room.id);
+    roomStore.setRoom(updatedRoom);
+    dialog.value = false;
+  } catch (error) {
+    console.error('Failed to close room:', error);
+  } finally {
+    isClosing.value = false;
+  }
 };
 
 const isRoomOpened = () => {
-    return roomStore.roomStatus === "opened";
-}
+  return roomStore.roomStatus === 'opened';
+};
 </script>
 
 <style scoped>

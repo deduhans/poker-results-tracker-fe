@@ -1,4 +1,4 @@
-import type { PaymentTypeEnum } from "./PaymentTypeEnum";
+import type { PaymentTypeEnum } from './PaymentTypeEnum';
 
 export interface CreatePayment {
     roomId: number;
