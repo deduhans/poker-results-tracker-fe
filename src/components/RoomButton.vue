@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import type { Room } from '@/types/room/Room';
-import { defineProps } from 'vue';
 
 defineProps<{
   room: Room

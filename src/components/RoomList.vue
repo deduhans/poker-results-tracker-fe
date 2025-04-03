@@ -1,8 +1,8 @@
 <template>
-    <v-card class="my-3">
-        <v-card-title class="text-h6">{{ listName }}</v-card-title>
+    <v-card class="my-3" data-cy="room-list">
+        <v-card-title class="text-h6" data-cy="room-list-title">{{ listName }}</v-card-title>
         
-        <v-container v-if="isListEmpty" class="d-flex justify-center">
+        <v-container v-if="isListEmpty" class="d-flex justify-center" data-cy="empty-list-message">
             <v-card-subtitle>No {{ listName.toLowerCase() }} available</v-card-subtitle>
         </v-container>
 
@@ -12,15 +12,16 @@
                 :key="room.id"
                 @click="handleRoomClick(room)"
                 class="room-item"
+                data-cy="room-list-item"
             >
                 <template v-slot:prepend>
-                    <v-icon :color="room.status === 'opened' ? 'success' : 'grey'">
+                    <v-icon :color="room.status === 'opened' ? 'success' : 'grey'" data-cy="room-status-icon">
                         {{ room.status === 'opened' ? 'mdi-door-open' : 'mdi-door-closed' }}
                     </v-icon>
                 </template>
 
-                <v-list-item-title>{{ room.name }}</v-list-item-title>
-                <v-list-item-subtitle>
+                <v-list-item-title data-cy="room-name">{{ room.name }}</v-list-item-title>
+                <v-list-item-subtitle data-cy="room-exchange">
                     Exchange rate: {{ room.exchange }}€
                 </v-list-item-subtitle>
 
@@ -29,6 +30,7 @@
                         size="small"
                         :color="room.status === 'opened' ? 'success' : 'grey'"
                         variant="outlined"
+                        data-cy="room-status-chip"
                     >
                         {{ room.status }}
                     </v-chip>

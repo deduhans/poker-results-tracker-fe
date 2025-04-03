@@ -1,47 +1,47 @@
 <template>
-    <v-btn v-if="isRoomOpened()" block color="error" @click="openDialog">Close Room</v-btn>
-    <v-dialog v-model="dialog" :max-width="$vuetify.display.mobile ? '100%' : '500px'"
-        :fullscreen="$vuetify.display.mobile">
-        <v-card :class="{ 'mobile-card': $vuetify.display.mobile }">
-            <v-toolbar v-if="$vuetify.display.mobile" color="primary" density="compact">
-                <v-btn icon @click="dialog = false" :disabled="isClosing">
-                    <v-icon>mdi-close</v-icon>
-                </v-btn>
-                <v-toolbar-title class="text-subtitle-1">Close Room</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-btn variant="text" @click="closeRoom" :disabled="!canCloseRoom" :loading="isClosing">
-                    Done
-                </v-btn>
-            </v-toolbar>
+  <v-btn v-if="isRoomOpened()" block color="error" @click="openDialog" data-cy="close-room-button">Close Room</v-btn>
+  <v-dialog v-model="dialog" :max-width="$vuetify.display.mobile ? '100%' : '500px'"
+    :fullscreen="$vuetify.display.mobile" data-cy="close-room-dialog">
+    <v-card :class="{ 'mobile-card': $vuetify.display.mobile }">
+      <v-toolbar v-if="$vuetify.display.mobile" color="primary" density="compact">
+        <v-btn icon @click="dialog = false" :disabled="isClosing">
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+        <v-toolbar-title class="text-subtitle-1">Close Room</v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn variant="text" @click="closeRoom" :disabled="!canCloseRoom" :loading="isClosing">
+          Done
+        </v-btn>
+      </v-toolbar>
 
-            <template v-else>
-                <v-card-title class="text-h6 px-4 pt-4">Close Room</v-card-title>
-            </template>
+      <template v-else>
+        <v-card-title class="text-h6 px-4 pt-4">Close Room</v-card-title>
+      </template>
 
-            <v-card-text :class="{ 'px-4': !$vuetify.display.mobile }">
-                <chips-distribution-stats :total="totalChipsCapacity" :distributed="totalValue" class="mb-4" />
-                <v-list class="pa-0" density="compact">
-                    <player-distribution-row v-for="(player, index) in playersResults" :key="player.id" :id="player.id"
-                        :name="player.name" :is-host="player.isHost" :initial-value="player.initialValue"
-                        v-model:value="player.value" :exchange-rate="exchangeRate"
-                        :has-error="totalValue > totalChipsCapacity" @next="focusNextInput(index)" ref="playerRows" />
-                </v-list>
+      <v-card-text :class="{ 'px-4': !$vuetify.display.mobile }">
+        <chips-distribution-stats :total="totalChipsCapacity" :distributed="totalValue" class="mb-4" />
+        <v-list class="pa-0" density="compact">
+          <player-distribution-row v-for="(player, index) in playersResults" :key="player.id" :id="player.id"
+            :name="player.name" :is-host="player.isHost" :initial-value="player.initialValue"
+            v-model:value="player.value" :exchange-rate="exchangeRate" :has-error="totalValue > totalChipsCapacity"
+            @next="focusNextInput(index)" ref="playerRows" />
+        </v-list>
 
-                <v-alert v-if="totalValue > totalChipsCapacity" type="error" class="mt-4" density="compact"
-                    variant="tonal">
-                    Total distributed chips cannot exceed {{ totalChipsCapacity }}
-                </v-alert>
-            </v-card-text>
+        <v-alert v-if="totalValue > totalChipsCapacity" type="error" class="mt-4" density="compact" variant="tonal">
+          Total distributed chips cannot exceed {{ totalChipsCapacity }}
+        </v-alert>
+      </v-card-text>
 
-            <v-card-actions v-if="!$vuetify.display.mobile" class="pa-4">
-                <v-spacer></v-spacer>
-                <v-btn color="primary" @click="closeRoom" :disabled="!canCloseRoom" :loading="isClosing">
-                    Close Room
-                </v-btn>
-                <v-btn color="error" variant="text" @click="dialog = false" :disabled="isClosing">Cancel</v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
+      <v-card-actions v-if="!$vuetify.display.mobile" class="pa-4">
+        <v-spacer></v-spacer>
+        <v-btn color="primary" @click="closeRoom" :disabled="!canCloseRoom" :loading="isClosing"
+          data-cy="close-room-submit">
+          Close Room
+        </v-btn>
+        <v-btn color="error" variant="text" @click="dialog = false" :disabled="isClosing">Cancel</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -58,11 +58,11 @@ import ChipsDistributionStats from './ChipsDistributionStats.vue';
 import { useChipsCalculation } from '@/composables/useChipsCalculation';
 
 interface PlayerResultInput {
-    id: number;
-    name: string;
-    value: number;
-    isHost: boolean;
-    initialValue: number;
+  id: number;
+  name: string;
+  value: number;
+  isHost: boolean;
+  initialValue: number;
 }
 
 const roomController = new RoomController();
@@ -117,9 +117,9 @@ const totalValue = computed(() => {
 
 const canCloseRoom = computed(() => {
   return totalValue.value === totalChipsCapacity.value &&
-        playersResults.value.every((player) =>
-          player.value >= 0 && Number.isInteger(player.value),
-        );
+    playersResults.value.every((player) =>
+      player.value >= 0 && Number.isInteger(player.value),
+    );
 });
 
 const closeRoom = async () => {
@@ -129,7 +129,7 @@ const closeRoom = async () => {
   try {
     const results: PlayerResult[] = playersResults.value.map((player) => ({
       id: player.id,
-      income: player.value / exchangeRate.value,
+      income: player.value,
     }));
 
     await roomController.closeRoom(roomStore.room.id, results);
@@ -150,6 +150,6 @@ const isRoomOpened = () => {
 
 <style scoped>
 .mobile-card {
-    border-radius: 0;
+  border-radius: 0;
 }
 </style>

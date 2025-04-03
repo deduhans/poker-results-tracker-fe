@@ -1,22 +1,17 @@
-import AuthController from '@/network/lib/auth';
-import { useUserStore } from '@/stores/user';
+import { useAuthStore } from '@/stores/auth';
 import { type NavigationGuard } from 'vue-router';
 
 const authGuard: NavigationGuard = (to, from, next) => {
-  const isAuthenticated = !!useUserStore().userId;
-
-  if (isAuthenticated) {
+  const authStore = useAuthStore();
+  
+  // Check if user is authenticated and session is valid
+  if (authStore.isAuthenticated && authStore.isSessionValid) {
     next();
   } else {
-    new Promise(async (res, rej) => {
-      const user: any = await new AuthController().sessionStatus();
-
-      if (user) {
-        useUserStore().setUser({ userId: user.userId, name: user.username });
-        next();
-      } else {
-        next({ name: 'login' });
-      }
+    // Session expired or not authenticated, redirect to login
+    next({ 
+      name: 'login',
+      query: to.path !== '/' ? { redirect: to.fullPath } : {} 
     });
   }
 };

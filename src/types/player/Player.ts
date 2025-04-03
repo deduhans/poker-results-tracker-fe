@@ -1,4 +1,4 @@
-import type { Payment } from '../payment/Payment';
+import type { Exchange } from '../payment/Exchange';
 import type { PlayerRoleEnum } from './PlayerRole';
 
 export interface Player {
@@ -6,6 +6,6 @@ export interface Player {
     roomId: number;
     name: string;
     role: PlayerRoleEnum;
-    payments: Payment[];
+    exchanges: Exchange[];
     createdAt: Date;
 }

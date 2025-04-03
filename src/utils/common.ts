@@ -6,7 +6,7 @@ export const formatDate = (date: Date) => {
 
 export const getPayments = (room: Room): PaymentDetails[] => {
   const mappedPayments: PaymentDetails[] = room.players.flatMap((player) => {
-    return player.payments?.map((payment) => ({
+    return player.exchanges?.map((payment) => ({
       id: payment.id,
       amount: payment.amount,
       date: formatDate(new Date(payment.createdAt)),

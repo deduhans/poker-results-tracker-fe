@@ -1,28 +1,34 @@
 <template>
     <v-container>
         <v-row justify="space-between" align="center" class="mb-4">
-            <v-card-title class="text-h4">{{ name }}</v-card-title>
-            <NewPlayer v-if="isOpened()" :roomId="Number(id)" />
+            <v-card-title class="text-h4" data-cy="room-header">{{ name }}</v-card-title>
+            <NewPlayer v-if="isOpened()" :roomId="Number(id)" data-cy="new-player-button" />
         </v-row>
 
         <v-row>
             <v-col cols="12" md="4">
-                <v-card>
+                <v-card data-cy="room-details-card">
                     <v-card-item>
                         <v-card-title class="text-h6 mb-2">Room Details</v-card-title>
                         <v-row>
                             <v-col cols="6">
                                 <div class="d-flex flex-column">
-                                    <v-card-subtitle class="py-1">Exchange: {{ exchange }}€</v-card-subtitle>
-                                    <v-card-subtitle class="py-1">Total Money: {{ capacity }}€</v-card-subtitle>
-                                    <v-card-subtitle class="py-1">Total Chips: {{ chipsCapacity }}</v-card-subtitle>
+                                    <v-card-subtitle class="py-1" data-cy="room-exchange">Exchange: {{ exchange
+                                    }}€</v-card-subtitle>
+                                    <v-card-subtitle class="py-1" data-cy="room-total-money">Total Money: {{ capacity
+                                    }}€</v-card-subtitle>
+                                    <v-card-subtitle class="py-1" data-cy="room-total-chips">Total Chips: {{
+                                        chipsCapacity }}</v-card-subtitle>
                                 </div>
                             </v-col>
                             <v-col cols="6">
                                 <div class="d-flex flex-column">
-                                    <v-card-subtitle class="py-1">Status: {{ status }}</v-card-subtitle>
-                                    <v-card-subtitle class="py-1">Created: {{ created }}</v-card-subtitle>
-                                    <v-card-subtitle class="py-1">Players: {{ players?.length || 0 }}</v-card-subtitle>
+                                    <v-card-subtitle class="py-1" data-cy="room-status">Status: {{ status
+                                    }}</v-card-subtitle>
+                                    <v-card-subtitle class="py-1" data-cy="room-created">Created: {{ created
+                                    }}</v-card-subtitle>
+                                    <v-card-subtitle class="py-1" data-cy="room-players-count">Players: {{
+                                        players?.length || 0 }}</v-card-subtitle>
                                 </div>
                             </v-col>
                         </v-row>
@@ -31,19 +37,22 @@
             </v-col>
 
             <v-col cols="12" md="8">
-                <v-card>
+                <v-card data-cy="players-card">
                     <v-card-item>
                         <v-card-title class="text-h6 mb-2">Players</v-card-title>
-                        <v-row v-if="players && players.length > 0">
+                        <v-row v-if="players && players.length > 0" data-cy="players-list">
                             <v-col v-for="player in players" :key="player.id" cols="12" sm="6" lg="4">
-                                <Player :roomId="Number(id)" :player="player" :status="status" />
+                                <Player :roomId="Number(id)" :player="player" :status="status" data-cy="player-item" />
                             </v-col>
                         </v-row>
-                        <v-card-text v-else class="text-center pa-4">
-                            <v-icon icon="mdi-account-multiple-plus" size="x-large" color="grey-lighten-1" class="mb-2"></v-icon>
+                        <v-card-text v-else class="text-center pa-4" data-cy="no-players-message">
+                            <v-icon icon="mdi-account-multiple-plus" size="x-large" color="grey-lighten-1"
+                                class="mb-2"></v-icon>
                             <div class="text-body-1 text-grey">No players have joined yet</div>
-                            <div v-if="isOpened()" class="text-caption text-grey-darken-1">Click the "Add Player" button to add players to the room</div>
-                            <div v-else class="text-caption text-grey-darken-1">This room is closed and cannot accept new players</div>
+                            <div v-if="isOpened()" class="text-caption text-grey-darken-1">Click the "Add Player" button
+                                to add players to the room</div>
+                            <div v-else class="text-caption text-grey-darken-1" data-cy="room-closed-message">This room
+                                is closed and cannot accept new players</div>
                         </v-card-text>
                     </v-card-item>
                 </v-card>
@@ -52,16 +61,18 @@
 
         <v-row class="mt-4">
             <v-col cols="12">
-                <v-card>
+                <v-card data-cy="payment-history-card">
                     <v-card-item>
                         <v-card-title class="text-h6 mb-2">Payment History</v-card-title>
-                        <v-list v-if="payments && payments.length > 0">
-                            <PaymentInfo v-for="payment in payments" :key="payment.id" :payment="payment" />
+                        <v-list v-if="payments && payments.length > 0" data-cy="payment-history-list">
+                            <PaymentInfo v-for="payment in payments" :key="payment.id" :payment="payment"
+                                data-cy="payment-item" />
                         </v-list>
-                        <v-card-text v-else class="text-center pa-4">
+                        <v-card-text v-else class="text-center pa-4" data-cy="no-payments-message">
                             <v-icon icon="mdi-cash-clock" size="x-large" color="grey-lighten-1" class="mb-2"></v-icon>
                             <div class="text-body-1 text-grey">No payments have been made yet</div>
-                            <div class="text-caption text-grey-darken-1">Click the + button on a player card to add a payment</div>
+                            <div class="text-caption text-grey-darken-1">Click the + button on a player card to add a
+                                payment</div>
                         </v-card-text>
                     </v-card-item>
                 </v-card>
@@ -70,7 +81,7 @@
 
         <v-row class="mt-4" v-if="isOpened()">
             <v-col cols="12">
-                <CloseRoomPopup />
+                <CloseRoomPopup data-cy="close-room-popup" />
             </v-col>
         </v-row>
     </v-container>
@@ -84,8 +95,8 @@ import Player from '@/components/Player.vue';
 import RoomController from '@/network/lib/room';
 import { useRoomStore } from '@/stores/room';
 import type { Room } from '@/types/room/Room';
-import type { PaymentDetails } from '@/types/payment/PaymentDetails';
-import { PaymentTypeEnum } from '@/types/payment/PaymentTypeEnum';
+import type { ExchangeDetails } from '@/types/payment/ExchangeDetails';
+import { ExchangeDirectionEnum } from '@/types/payment/ExchangeDirectionEnum';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -108,68 +119,68 @@ const props = defineProps<{
 }>();
 
 const updateRoom = async () => {
-  const room: Room = await roomController.getRoom(Number(props.id));
-  roomStore.setRoom(room);
+    const room: Room = await roomController.getRoom(Number(props.id));
+    roomStore.setRoom(room);
 
-  name.value = room.name;
-  players.value = room.players;
-  payments.value = getPayments(room);
-  status.value = room.status;
-  roomId.value = room.id;
-  exchange.value = room.exchange;
-  created.value = formatDate(new Date(room.createdAt));
-  capacity.value = getCapacity(room);
-  chipsCapacity.value = getChipsCapacity(room);
+    name.value = room.name;
+    players.value = room.players;
+    payments.value = getPayments(room);
+    status.value = room.status;
+    roomId.value = room.id;
+    exchange.value = room.exchange;
+    created.value = formatDate(new Date(room.createdAt));
+    capacity.value = getCapacity(room);
+    chipsCapacity.value = getChipsCapacity(room);
 };
 
 onMounted(updateRoom);
 
 // Watch for room store changes
 watch(() => roomStore.room, (newRoom) => {
-  if (newRoom) {
-    name.value = newRoom.name;
-    players.value = newRoom.players;
-    payments.value = getPayments(newRoom);
-    status.value = newRoom.status;
-    roomId.value = newRoom.id;
-    exchange.value = newRoom.exchange;
-    created.value = formatDate(new Date(newRoom.createdAt));
-    capacity.value = getCapacity(newRoom);
-    chipsCapacity.value = getChipsCapacity(newRoom);
-  }
+    if (newRoom) {
+        name.value = newRoom.name;
+        players.value = newRoom.players;
+        payments.value = getPayments(newRoom);
+        status.value = newRoom.status;
+        roomId.value = newRoom.id;
+        exchange.value = newRoom.exchange;
+        created.value = formatDate(new Date(newRoom.createdAt));
+        capacity.value = getCapacity(newRoom);
+        chipsCapacity.value = getChipsCapacity(newRoom);
+    }
 });
 
-const getPayments = (room: Room): PaymentDetails[] => {
-  const mappedPayments: PaymentDetails[] = room.players.flatMap((player) => {
-    return player.payments?.map((payment) => ({
-      id: payment.id,
-      amount: payment.amount,
-      date: formatDate(new Date(payment.createdAt)),
-      playerName: player.name,
-      type: payment.type as PaymentTypeEnum,
-    }));
-  }).filter((payment) => payment !== undefined);
-  mappedPayments.sort((a, b) => a.id - b.id);
-  return mappedPayments;
+const getPayments = (room: Room): ExchangeDetails[] => {
+    const mappedPayments: ExchangeDetails[] = room.players.flatMap((player) => {
+        return player.exchanges?.map((payment) => ({
+            id: payment.id,
+            amount: payment.cashAmount,
+            date: formatDate(new Date(payment.createdAt)),
+            playerName: player.name,
+            type: payment.direction as ExchangeDirectionEnum,
+        }));
+    }).filter((payment) => payment !== undefined);
+    mappedPayments.sort((a, b) => a.id - b.id);
+    return mappedPayments;
 };
 
 const getCapacity = (room: Room): number => {
-  return getPayments(room).reduce((sum, payment) => sum += payment.amount, 0);
+    return getPayments(room).reduce((sum, payment) => sum += payment.amount, 0);
 };
 
 const getChipsCapacity = (room: Room): number => {
-  return getCapacity(room) * room.exchange;
+    return getCapacity(room) * room.exchange;
 };
 
 const formatDate = (date: Date) => {
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${hours}:${minutes} ${month}/${day}`;
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${hours}:${minutes} ${month}/${day}`;
 };
 
 const isOpened = () => {
-  return status.value === 'opened';
+    return status.value === 'opened';
 };
 </script>

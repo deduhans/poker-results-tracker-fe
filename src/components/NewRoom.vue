@@ -3,6 +3,7 @@
         @click="openDialog"
         color="primary"
         prepend-icon="mdi-plus"
+        data-cy="create-room-button"
     >
         New Room
     </v-btn>
@@ -11,6 +12,7 @@
         v-model="dialog"
         max-width="500px"
         :persistent="loading"
+        data-cy="create-room-dialog"
     >
         <v-card>
             <v-card-title class="text-h5">Create New Room</v-card-title>
@@ -22,6 +24,7 @@
                     variant="outlined"
                     density="compact"
                     class="mb-4"
+                    data-cy="create-room-error"
                 >
                     {{ errorMessage }}
                 </v-alert>
@@ -30,6 +33,7 @@
                     ref="form"
                     v-model="valid"
                     @submit.prevent="createRoom"
+                    data-cy="create-room-form"
                 >
                     <v-text-field
                         v-model="name"
@@ -37,6 +41,7 @@
                         :rules="nameRules"
                         required
                         :disabled="loading"
+                        data-cy="room-name-input"
                     ></v-text-field>
 
                     <v-text-field
@@ -48,6 +53,7 @@
                         :disabled="loading"
                         hint="Minimum bet amount in euros"
                         persistent-hint
+                        data-cy="room-exchange-input"
                     ></v-text-field>
                 </v-form>
             </v-card-text>
@@ -58,6 +64,7 @@
                     color="grey"
                     @click="closeDialog"
                     :disabled="loading"
+                    data-cy="cancel-button"
                 >
                     Cancel
                 </v-btn>
@@ -66,6 +73,7 @@
                     @click="createRoom"
                     :loading="loading"
                     :disabled="!valid || loading"
+                    data-cy="create-button"
                 >
                     Create
                 </v-btn>

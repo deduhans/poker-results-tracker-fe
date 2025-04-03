@@ -1,8 +1,8 @@
 <template>
     <v-container>
         <v-row justify="space-between" align="center" class="mb-4">
-            <v-card-title class="text-h4">Rooms</v-card-title>
-            <NewRoom />
+            <v-card-title class="text-h4" data-cy="home-title">Rooms</v-card-title>
+            <NewRoom data-cy="create-room-button" />
         </v-row>
 
         <v-alert
@@ -11,6 +11,7 @@
             variant="outlined"
             density="compact"
             class="mb-4"
+            data-cy="error-alert"
         >
             {{ errorMessage }}
         </v-alert>
@@ -19,16 +20,19 @@
             v-if="loading"
             indeterminate
             color="primary"
+            data-cy="loading-indicator"
         ></v-progress-linear>
 
         <v-col v-else>
             <RoomList 
                 :rooms="openRooms || []"
                 listName="Open Rooms"
+                data-cy="open-rooms-list"
             />
             <RoomList 
                 :rooms="closedRooms || []"
                 listName="Closed Rooms"
+                data-cy="closed-rooms-list"
             />
         </v-col>
     </v-container>

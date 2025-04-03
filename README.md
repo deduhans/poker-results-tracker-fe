@@ -1,6 +1,29 @@
-# poker-results-tracker-frontend
+# Poker Results Tracker
 
-This template should help get you started developing with Vue 3 in Vite.
+A web application designed to simplify tracking buy-ins, cash flow, and results during poker games.
+
+## Project Overview
+
+Poker Results Tracker solves a common problem in casual poker games: tracking money when players join and leave throughout a session. The application allows users to:
+
+- Create a poker room and become the host
+- Add players to the room
+- Track buy-ins and chip purchases during the game
+- Close the room at the end of the session by recording final chip counts
+- Automatically calculate and display each player's profit or loss
+
+This eliminates the need for manual calculations and provides a clear record of all transactions, ensuring transparency among players.
+
+## How It Works
+
+1. **Room Creation**: A user creates a "room" for a poker session and becomes the host.
+2. **Player Management**: The host adds other players to the room.
+3. **Buy-in Tracking**: Players can buy chips during the game, with all transactions recorded.
+4. **Game Closure**: When the session ends, the host closes the room and inputs each player's final chip count.
+5. **Results Calculation**: The system calculates each player's profit or loss automatically.
+6. **Transparency**: All players can see the final results showing exactly how much each person won or lost.
+
+## Technical Details
 
 ## Recommended IDE Setup
 
@@ -42,4 +65,3 @@ npm run test:unit
 
 ```sh
 npm run lint
-```

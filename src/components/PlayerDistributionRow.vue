@@ -1,7 +1,7 @@
 <template>
     <v-list-item rounded="lg" class="player-row mb-2" active-class="">
         <v-list-item-title class="text-body-2 font-weight-medium text-truncate" :title="name">{{ name
-            }}</v-list-item-title>
+        }}</v-list-item-title>
 
         <template v-slot:append>
             <v-row align="center" no-gutters class="gap-2">
@@ -13,7 +13,8 @@
                 <v-col class="flex-grow-0">
                     <v-text-field v-model.number="localValue" type="number" density="compact" hide-details
                         variant="outlined" bg-color="surface" class="chips-input" :error="hasError"
-                        :rules="validationRules" @update:model-value="updateValue" @keydown.enter="$emit('next')">
+                        :rules="validationRules" @update:model-value="updateValue" @keydown.enter="$emit('next')"
+                        data-cy="player-distribution-row-input">
                         <template #append-inner>
                             <v-icon size="small" color="medium-emphasis">mdi-poker-chip</v-icon>
                         </template>
@@ -45,34 +46,34 @@ const emit = defineEmits<{
 const localValue = ref<number | null>(props.value);
 
 watch(() => props.value, (newValue) => {
-  if (newValue !== localValue.value) {
-    localValue.value = newValue;
-  }
+    if (newValue !== localValue.value) {
+        localValue.value = newValue;
+    }
 });
 
 const updateValue = (value: number | string | null) => {
-  emit('update:value', value === null || value === '' ? null : Number(value));
+    emit('update:value', value === null || value === '' ? null : Number(value));
 };
 
 const income = computed(() => {
-  return ((localValue.value ?? 0) - props.initialValue) / props.exchangeRate;
+    return ((localValue.value ?? 0) - props.initialValue) / props.exchangeRate;
 });
 
 const incomeColor = computed(() => {
-  if (income.value > 0) return 'success';
-  if (income.value < 0) return 'error';
-  return 'medium-emphasis';
+    if (income.value > 0) return 'success';
+    if (income.value < 0) return 'error';
+    return 'medium-emphasis';
 });
 
 const formattedIncome = computed(() => {
-  const prefix = income.value > 0 ? '+' : '';
-  return `${prefix}${income.value.toFixed(2)}€`;
+    const prefix = income.value > 0 ? '+' : '';
+    return `${prefix}${income.value.toFixed(2)}€`;
 });
 
 const validationRules = [
-  (v: any) => !!v || 'Required',
-  (v: any) => v >= 0 || 'Must be positive',
-  (v: any) => Number.isInteger(v) || 'Must be a whole number',
+    (v: any) => !!v || 'Required',
+    (v: any) => v >= 0 || 'Must be positive',
+    (v: any) => Number.isInteger(v) || 'Must be a whole number',
 ];
 </script>
 

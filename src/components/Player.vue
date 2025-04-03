@@ -1,45 +1,46 @@
 <template>
-    <v-card class="mx-auto my-2" max-width="300">
-        <v-card-item>
-            <v-row align="center" no-gutters>
-                <v-col cols="auto" class="mr-2">
-                    <v-icon v-if="player.role === PlayerRoleEnum.Host" color="warning" icon="mdi-crown"></v-icon>
-                    <v-icon v-else color="primary" icon="mdi-account"></v-icon>
-                </v-col>
-                <v-col>
-                    <v-card-title class="text-subtitle-1 py-1">{{ player.name }}</v-card-title>
-                    <v-card-subtitle class="py-1">Spend: {{ totalSpend() }}€</v-card-subtitle>
-                </v-col>
-                <v-col cols="auto">
-                    <v-btn v-if="isOpened()" @click="createPayment" icon="mdi-plus" size="small"></v-btn>
-                </v-col>
-            </v-row>
-        </v-card-item>
-    </v-card>
+  <v-card class="mx-auto my-0" max-width="300">
+    <v-card-item>
+      <v-row align="center" no-gutters>
+        <v-col cols="auto" class="mr-2">
+          <v-icon v-if="player.role === PlayerRoleEnum.Host" color="warning" icon="mdi-crown"></v-icon>
+          <v-icon v-else color="primary" icon="mdi-account"></v-icon>
+        </v-col>
+        <v-col>
+          <v-card-title class="text-subtitle-1 py-1">{{ player.name }}</v-card-title>
+          <v-card-subtitle class="py-1">Spend: {{ totalSpend() }}€</v-card-subtitle>
+          <v-card-subtitle class="py-1">Income: {{ totalIncome() }}€</v-card-subtitle>
+        </v-col>
+        <v-col cols="auto">
+          <v-btn v-if="isOpened()" @click="createPayment" icon="mdi-plus" size="small"
+            data-cy="create-payment-button"></v-btn>
+        </v-col>
+      </v-row>
+    </v-card-item>
+  </v-card>
 </template>
 
 <script lang="ts" setup>
-import PaymentController from '@/network/lib/payment';
+import ExchangeController from '@/network/lib/exchange';
 import RoomController from '@/network/lib/room';
 import { useUserStore } from '@/stores/user';
 import { useRoomStore } from '@/stores/room';
-import type { CreatePayment } from '@/types/payment/CreatePayment';
-import { PaymentTypeEnum } from '@/types/payment/PaymentTypeEnum';
+import type { CreateExchange } from '@/types/payment/CreateExchange';
+import { ExchangeDirectionEnum } from '@/types/payment/ExchangeDirectionEnum';
 import type { Player } from '@/types/player/Player';
 import { PlayerRoleEnum } from '@/types/player/PlayerRole';
-import { defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 
-const paymentController = new PaymentController();
+const exchangeController = new ExchangeController();
 const roomController = new RoomController();
 const userStore = useUserStore();
 const roomStore = useRoomStore();
 const router = useRouter();
 
 const props = defineProps<{
-    roomId: number,
-    player: Player,
-    status: any
+  roomId: number,
+  player: Player,
+  status: any
 }>();
 
 const createPayment = async () => {
@@ -47,14 +48,14 @@ const createPayment = async () => {
     return;
   }
 
-  const newPayment: CreatePayment = {
+  const newExchange: CreateExchange = {
     roomId: props.roomId,
     playerId: props.player.id,
     amount: 50,
-    type: PaymentTypeEnum.Outcome,
+    type: ExchangeDirectionEnum.BuyIn,
   };
 
-  await paymentController.createPayment(newPayment);
+  await exchangeController.createExchange(newExchange);
   const updatedRoom = await roomController.getRoom(props.roomId);
   roomStore.setRoom(updatedRoom);
 };
@@ -64,6 +65,11 @@ const isOpened = () => {
 };
 
 const totalSpend = () => {
-  return props.player.payments?.reduce((sum, payment) => sum += payment.amount, 0) || 0;
+  return props.player.exchanges?.filter((payment) => payment.direction === ExchangeDirectionEnum.BuyIn).reduce((sum, payment) => sum += payment.cashAmount, 0) || 0;
 };
+
+const totalIncome = () => {
+  return props.player.exchanges?.filter((payment) => payment.direction === ExchangeDirectionEnum.CashOut).reduce((sum, payment) => sum += payment.cashAmount, 0) || 0;
+};
+
 </script>
