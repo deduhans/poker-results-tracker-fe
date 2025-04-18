@@ -26,6 +26,7 @@
     "currency.js": "^2.0.4",
     "dotenv": "^16.4.7",
     "pinia": "^2.2.4",
+    "qrcode.vue": "^3.6.0",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5",
     "vuetify": "^3.7.4"

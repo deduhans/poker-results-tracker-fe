@@ -2,7 +2,10 @@
     <v-container fluid class="pa-3">
         <v-row justify="space-between" align="center" class="mb-4 px-2">
             <v-card-title class="text-h4" data-cy="room-header">{{ name }}</v-card-title>
-            <NewPlayer v-if="isOpened()" :roomId="Number(id)" data-cy="new-player-button" />
+            <div class="d-flex align-center">
+                <ShareRoom :roomId="Number(id)" data-cy="share-room" />
+                <NewPlayer v-if="isOpened()" :roomId="Number(id)" data-cy="new-player-button" />
+            </div>
         </v-row>
 
         <v-row>
@@ -93,6 +96,7 @@ import CloseRoomPopup from '@/components/CloseRoomPopup.vue';
 import NewPlayer from '@/components/NewPlayer.vue';
 import PaymentInfo from '@/components/PaymentInfo.vue';
 import Player from '@/components/Player.vue';
+import ShareRoom from '@/components/ShareRoom.vue';
 import RoomController from '@/network/lib/room';
 import { useRoomStore } from '@/stores/room';
 import { useUserStore } from '@/stores/user';
