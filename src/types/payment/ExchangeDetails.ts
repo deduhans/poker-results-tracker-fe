@@ -2,7 +2,7 @@ import type { ExchangeDirectionEnum } from './ExchangeDirectionEnum';
 
 export interface ExchangeDetails {
     id: number;
-    amount: number;
+    amount: string;
     date: string;
     playerName: string;
     type: ExchangeDirectionEnum;

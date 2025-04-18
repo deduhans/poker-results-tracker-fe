@@ -56,6 +56,7 @@ import { useRouter } from 'vue-router';
 import PlayerDistributionRow from './PlayerDistributionRow.vue';
 import ChipsDistributionStats from './ChipsDistributionStats.vue';
 import { useChipsCalculation } from '@/composables/useChipsCalculation';
+import currency from 'currency.js';
 
 interface PlayerResultInput {
   id: number;
@@ -129,7 +130,7 @@ const closeRoom = async () => {
   try {
     const results: PlayerResult[] = playersResults.value.map((player) => ({
       id: player.id,
-      income: player.value,
+      income: currency(player.value || 0).toString(),
     }));
 
     await roomController.closeRoom(roomStore.room.id, results);

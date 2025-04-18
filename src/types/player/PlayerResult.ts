@@ -1,4 +1,4 @@
 export interface PlayerResult {
     id: number;
-    income: number;
+    income: string;
 }

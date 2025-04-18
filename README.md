@@ -43,6 +43,12 @@ See [Vite Configuration Reference](https://vite.dev/config/).
 npm install
 ```
 
+## Local .env Setup
+
+```sh
+cp .env.example .env
+```
+
 ### Compile and Hot-Reload for Development
 
 ```sh

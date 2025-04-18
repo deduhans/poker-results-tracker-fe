@@ -7,7 +7,7 @@ import LogIn from '@/views/LogIn.vue';
 import authGuard from './authGuard';
 
 const routes: RouteRecordRaw[] = [
-  { path: '/welcome', name: 'welcome', component: Welcome },
+  { path: '/', name: 'welcome', component: Welcome },
   { path: '/login', name: 'login', component: LogIn },
   { path: '/register', name: 'register', component: Register },
   { path: '/home', name: 'home', component: Home, beforeEnter: authGuard },

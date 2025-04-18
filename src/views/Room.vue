@@ -14,19 +14,20 @@
                             <v-col cols="6">
                                 <div class="d-flex flex-column">
                                     <v-card-subtitle class="py-1" data-cy="room-exchange">Exchange: {{ exchange
-                                    }}€</v-card-subtitle>
-                                    <v-card-subtitle class="py-1" data-cy="room-total-money">Total Money: {{ capacity
-                                    }}€</v-card-subtitle>
+                                        }}</v-card-subtitle>
+                                    <v-card-subtitle class="py-1" data-cy="room-total-money">Total Money: {{
+                                        formatCurrency(capacity)
+                                        }}</v-card-subtitle>
                                     <v-card-subtitle class="py-1" data-cy="room-total-chips">Total Chips: {{
-                                        chipsCapacity }}</v-card-subtitle>
+                                        formatNumber(chipsCapacity) }}</v-card-subtitle>
                                 </div>
                             </v-col>
                             <v-col cols="6">
                                 <div class="d-flex flex-column">
                                     <v-card-subtitle class="py-1" data-cy="room-status">Status: {{ status
-                                    }}</v-card-subtitle>
+                                        }}</v-card-subtitle>
                                     <v-card-subtitle class="py-1" data-cy="room-created">Created: {{ created
-                                    }}</v-card-subtitle>
+                                        }}</v-card-subtitle>
                                     <v-card-subtitle class="py-1" data-cy="room-players-count">Players: {{
                                         players?.length || 0 }}</v-card-subtitle>
                                 </div>
@@ -40,8 +41,8 @@
                 <v-card data-cy="players-card">
                     <v-card-item>
                         <v-card-title class="text-h6 mb-2">Players</v-card-title>
-                        <v-row v-if="players && players.length > 0" data-cy="players-list">
-                            <v-col v-for="player in players" :key="player.id" cols="12" sm="6" lg="4">
+                        <v-row v-if="sortedPlayers && sortedPlayers.length > 0" data-cy="players-list">
+                            <v-col v-for="player in sortedPlayers" :key="player.id" cols="12" sm="6" lg="4">
                                 <Player :roomId="Number(id)" :player="player" :status="status" data-cy="player-item" />
                             </v-col>
                         </v-row>
@@ -94,15 +95,18 @@ import PaymentInfo from '@/components/PaymentInfo.vue';
 import Player from '@/components/Player.vue';
 import RoomController from '@/network/lib/room';
 import { useRoomStore } from '@/stores/room';
+import { useUserStore } from '@/stores/user';
 import type { Room } from '@/types/room/Room';
 import type { ExchangeDetails } from '@/types/payment/ExchangeDetails';
 import { ExchangeDirectionEnum } from '@/types/payment/ExchangeDirectionEnum';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import currency from 'currency.js';
 
 const roomController = new RoomController();
 const router = useRouter();
 const roomStore = useRoomStore();
+const userStore = useUserStore();
 
 const name = ref();
 const players = ref();
@@ -165,11 +169,26 @@ const getPayments = (room: Room): ExchangeDetails[] => {
 };
 
 const getCapacity = (room: Room): number => {
-    return getPayments(room).reduce((sum, payment) => sum += payment.amount, 0);
+    let total = currency(0);
+
+    getPayments(room).forEach(payment => {
+        // Handle null, undefined or empty string with a default of '0'
+        const amount = payment.amount || '0';
+
+        // For BuyIn, add the amount; for CashOut, subtract it
+        if (payment.type === ExchangeDirectionEnum.BuyIn) {
+            total = total.add(amount);
+        } else {
+            total = total.subtract(amount);
+        }
+    });
+
+    return total.value;
 };
 
 const getChipsCapacity = (room: Room): number => {
-    return getCapacity(room) * room.exchange;
+    // Use Math.round to ensure we return an integer
+    return Math.round(currency(getCapacity(room)).multiply(room.exchange).value);
 };
 
 const formatDate = (date: Date) => {
@@ -180,7 +199,38 @@ const formatDate = (date: Date) => {
     return `${hours}:${minutes} ${month}/${day}`;
 };
 
+const formatCurrency = (value: number) => {
+    return currency(value, { symbol: '€', decimal: '.', separator: ',' }).format();
+};
+
+const formatNumber = (value: number) => {
+    // For chip counts, we want integers with no decimal places
+    return new Intl.NumberFormat('en-US', {
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0
+    }).format(value);
+};
+
 const isOpened = () => {
     return status.value === 'opened';
 };
+
+const sortedPlayers = computed(() => {
+    if (!players.value) return [];
+
+    return [...players.value].sort((a, b) => {
+        // First, check if either player belongs to the current user - they go to the top
+        const isPlayerA_CurrentUser = a.user && a.user.id === userStore.userId;
+        const isPlayerB_CurrentUser = b.user && b.user.id === userStore.userId;
+
+        // If player A is the current user's player, it comes first
+        if (isPlayerA_CurrentUser && !isPlayerB_CurrentUser) return -1;
+
+        // If player B is the current user's player, it comes first
+        if (!isPlayerA_CurrentUser && isPlayerB_CurrentUser) return 1;
+
+        // Otherwise, sort by creation date (oldest first - ascending)
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    });
+});
 </script>

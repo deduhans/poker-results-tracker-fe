@@ -1,4 +1,5 @@
 import type { Player } from '@/types/player/Player';
+import currency from 'currency.js';
 
 export interface ChipsCalculationResult {
   totalChips: number;
@@ -7,8 +8,19 @@ export interface ChipsCalculationResult {
 
 export const useChipsCalculation = () => {
   const calculatePlayerChips = (player: Player, exchangeRate: number): ChipsCalculationResult => {
-    const paymentsSum = player.exchanges?.reduce((sum, payment) => sum + payment.cashAmount, 0) || 0;
-    const chipsValue = paymentsSum * exchangeRate;
+    let totalCash = currency(0);
+    
+    // Sum all buy-ins and subtract cash-outs
+    player.exchanges?.forEach(payment => {
+      if (payment.direction === 'buyIn') {
+        totalCash = totalCash.add(payment.cashAmount || '0');
+      } else {
+        totalCash = totalCash.subtract(payment.cashAmount || '0');
+      }
+    });
+    
+    // Calculate chips by multiplying by exchange rate
+    const chipsValue = Math.round(totalCash.multiply(exchangeRate).value);
 
     return {
       totalChips: chipsValue,

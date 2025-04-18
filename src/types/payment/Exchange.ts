@@ -4,8 +4,8 @@ export interface Exchange {
     id: number;
     roomId: number;
     playerId: number;
-    chipAmount: number;
-    cashAmount: number;
+    chipAmount: string;
+    cashAmount: string;
     direction: ExchangeDirectionEnum;
     createdAt: Date;
 }
