@@ -17,13 +17,9 @@
                 ({{ player.user.username }})
               </span>
               <div class="ml-auto d-flex">
-                <v-btn v-if="isOpened() && canSetPlayerAsAdmin" @click="setAsAdmin" size="x-small" color="success"
-                  variant="outlined" class="action-icon-btn promote-btn mr-1" :loading="setAdminLoading"
-                  title="Promote to Admin">
-                  <div class="d-flex align-center">
-                    <v-icon size="x-small" icon="mdi-arrow-up" class="promote-arrow"></v-icon>
-                    <v-icon size="x-small" icon="mdi-shield-account"></v-icon>
-                  </div>
+                <v-btn v-if="isOpened() && canSetPlayerAsAdmin" @click="setAsAdmin" color="success" variant="outlined"
+                  class="action-icon-btn promote-btn mr-1" :loading="setAdminLoading" title="Promote to Admin"
+                  icon="mdi-shield-plus">
                 </v-btn>
                 <v-btn v-if="isOpened() && canBeAssignedToUser" @click="assignToUser" size="x-small" color="info"
                   variant="outlined" class="assign-btn" :loading="assignLoading" title="Assign to me">

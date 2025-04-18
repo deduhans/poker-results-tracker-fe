@@ -21,8 +21,12 @@ const router = useRouter();
 const userStore = useUserStore();
 
 const redirectBack = () => {
-  router.back();
+    router.back();
 };
 </script>
 
-<style></style>
+<style scoped>
+.v-app-bar {
+    z-index: 1000;
+}
+</style>

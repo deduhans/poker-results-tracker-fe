@@ -1,6 +1,6 @@
 <template>
-    <v-container>
-        <v-row justify="space-between" align="center" class="mb-4">
+    <v-container fluid class="pa-3">
+        <v-row justify="space-between" align="center" class="mb-4 px-2">
             <v-card-title class="text-h4" data-cy="room-header">{{ name }}</v-card-title>
             <NewPlayer v-if="isOpened()" :roomId="Number(id)" data-cy="new-player-button" />
         </v-row>

@@ -1,41 +1,21 @@
 <template>
-    <v-container>
-        <v-row justify="space-between" align="center" class="mb-4">
-            <v-card-title class="text-h4" data-cy="home-title">Rooms</v-card-title>
-            <NewRoom data-cy="create-room-button" />
-        </v-row>
+	<v-container>
+		<v-row justify="space-between" align="center" class="mb-4">
+			<v-card-title class="text-h4" data-cy="home-title">Rooms</v-card-title>
+			<NewRoom data-cy="create-room-button" />
+		</v-row>
 
-        <v-alert
-            v-if="error"
-            type="error"
-            variant="outlined"
-            density="compact"
-            class="mb-4"
-            data-cy="error-alert"
-        >
-            {{ errorMessage }}
-        </v-alert>
+		<v-alert v-if="error" type="error" variant="outlined" density="compact" class="mb-4" data-cy="error-alert">
+			{{ errorMessage }}
+		</v-alert>
 
-        <v-progress-linear
-            v-if="loading"
-            indeterminate
-            color="primary"
-            data-cy="loading-indicator"
-        ></v-progress-linear>
+		<v-progress-linear v-if="loading" indeterminate color="primary" data-cy="loading-indicator"></v-progress-linear>
 
-        <v-col v-else>
-            <RoomList 
-                :rooms="openRooms || []"
-                listName="Open Rooms"
-                data-cy="open-rooms-list"
-            />
-            <RoomList 
-                :rooms="closedRooms || []"
-                listName="Closed Rooms"
-                data-cy="closed-rooms-list"
-            />
-        </v-col>
-    </v-container>
+		<v-col v-else>
+			<RoomList :rooms="openRooms || []" listName="Open Rooms" data-cy="open-rooms-list" />
+			<RoomList :rooms="closedRooms || []" listName="Closed Rooms" data-cy="closed-rooms-list" />
+		</v-col>
+	</v-container>
 </template>
 
 <script lang="ts" setup>
@@ -54,24 +34,24 @@ const error = ref(false);
 const errorMessage = ref('');
 
 const loadRooms = async () => {
-  loading.value = true;
-  error.value = false;
-  errorMessage.value = '';
+	loading.value = true;
+	error.value = false;
+	errorMessage.value = '';
 
-  try {
-    const response = await roomController.getRooms();
-    openRooms.value = response.filter((room) => room.status === 'opened');
-    closedRooms.value = response.filter((room) => room.status === 'closed');
-  } catch (e: any) {
-    error.value = true;
-    errorMessage.value = e.response?.data?.message || 'Failed to load rooms';
-    console.error('Error loading rooms:', e);
-  } finally {
-    loading.value = false;
-  }
+	try {
+		const response = await roomController.getRooms();
+		openRooms.value = response.filter((room) => room.status === 'opened');
+		closedRooms.value = response.filter((room) => room.status === 'closed');
+	} catch (e: any) {
+		error.value = true;
+		errorMessage.value = e.response?.data?.message || 'Failed to load rooms';
+		console.error('Error loading rooms:', e);
+	} finally {
+		loading.value = false;
+	}
 };
 
 onMounted(() => {
-  loadRooms();
+	loadRooms();
 });
 </script>
