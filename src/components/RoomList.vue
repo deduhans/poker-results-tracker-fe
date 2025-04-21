@@ -15,9 +15,20 @@
                 data-cy="room-list-item"
             >
                 <template v-slot:prepend>
-                    <v-icon :color="room.status === 'opened' ? 'success' : 'grey'" data-cy="room-status-icon">
-                        {{ room.status === 'opened' ? 'mdi-door-open' : 'mdi-door-closed' }}
-                    </v-icon>
+                    <div class="d-flex align-center">
+                        <v-icon :color="room.status === 'opened' ? 'success' : 'grey'" data-cy="room-status-icon">
+                            {{ room.status === 'opened' ? 'mdi-door-open' : 'mdi-door-closed' }}
+                        </v-icon>
+                        <v-icon 
+                            v-if="room.roomKey" 
+                            color="amber-darken-2" 
+                            size="small" 
+                            class="ms-1"
+                            data-cy="room-key-icon"
+                        >
+                            mdi-key
+                        </v-icon>
+                    </div>
                 </template>
 
                 <v-list-item-title data-cy="room-name">{{ room.name }}</v-list-item-title>

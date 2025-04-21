@@ -1,9 +1,18 @@
 <template>
     <v-container fluid class="pa-3">
+        <!-- Room Key Dialog -->
+        <RoomKeyDialog
+            v-if="requiresKey"
+            :roomId="Number(id)"
+            :accessToken="accessTokenFromUrl"
+            @submit="handleRoomKeySubmit"
+            @cancel="handleRoomKeyCancel"
+        />
+
         <v-row justify="space-between" align="center" class="mb-4 px-2">
             <v-card-title class="text-h4" data-cy="room-header">{{ name }}</v-card-title>
             <div class="d-flex align-center">
-                <ShareRoom :roomId="Number(id)" data-cy="share-room" />
+                <ShareRoom v-if="roomData" :room="roomData" data-cy="share-room" />
                 <NewPlayer v-if="isOpened()" :roomId="Number(id)" data-cy="new-player-button" />
             </div>
         </v-row>
@@ -97,6 +106,7 @@ import NewPlayer from '@/components/NewPlayer.vue';
 import PaymentInfo from '@/components/PaymentInfo.vue';
 import Player from '@/components/Player.vue';
 import ShareRoom from '@/components/ShareRoom.vue';
+import RoomKeyDialog from '@/components/RoomKeyDialog.vue';
 import RoomController from '@/network/lib/room';
 import { useRoomStore } from '@/stores/room';
 import { useUserStore } from '@/stores/user';
@@ -104,11 +114,12 @@ import type { Room } from '@/types/room/Room';
 import type { ExchangeDetails } from '@/types/payment/ExchangeDetails';
 import { ExchangeDirectionEnum } from '@/types/payment/ExchangeDirectionEnum';
 import { onMounted, ref, watch, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import currency from 'currency.js';
 
 const roomController = new RoomController();
 const router = useRouter();
+const route = useRoute();
 const roomStore = useRoomStore();
 const userStore = useUserStore();
 
@@ -121,31 +132,69 @@ const exchange = ref();
 const created = ref();
 const capacity = ref();
 const chipsCapacity = ref();
+const roomData = ref<Room | null>(null);
+const requiresKey = ref(false);
+const roomKeySubmitted = ref(false);
+const accessTokenFromUrl = computed(() => route.query.token as string | undefined);
 
 const props = defineProps<{
     id: string
 }>();
 
-const updateRoom = async () => {
-    const room: Room = await roomController.getRoom(Number(props.id));
-    roomStore.setRoom(room);
+const updateRoom = async (roomKey?: string) => {
+    try {
+        // Get access token from URL query parameter if available
+        const accessToken = route.query.token as string | undefined;
+        
+        // Fetch room data with the access token and room key if available
+        const room: Room = await roomController.getRoom(Number(props.id), accessToken, roomKey);
+        
+        // If the room requires a key and we haven't submitted one yet, show the key dialog
+        if (room.requiresKey && !roomKeySubmitted.value) {
+            requiresKey.value = true;
+            return;
+        }
+        
+        // Key is valid or not required, continue with room data
+        requiresKey.value = false;
+        roomStore.setRoom(room);
+        roomData.value = room;
 
-    name.value = room.name;
-    players.value = room.players;
-    payments.value = getPayments(room);
-    status.value = room.status;
-    roomId.value = room.id;
-    exchange.value = room.exchange;
-    created.value = formatDate(new Date(room.createdAt));
-    capacity.value = getCapacity(room);
-    chipsCapacity.value = getChipsCapacity(room);
+        name.value = room.name;
+        players.value = room.players;
+        payments.value = getPayments(room);
+        status.value = room.status;
+        roomId.value = room.id;
+        exchange.value = room.exchange;
+        created.value = formatDate(new Date(room.createdAt));
+        capacity.value = getCapacity(room);
+        chipsCapacity.value = getChipsCapacity(room);
+    } catch (error: any) {
+        console.error('Error loading room:', error);
+        
+        // If we get a 403 error, it means the room is invisible and requires an access token
+        if (error.response?.status === 403) {
+            router.push({ name: 'home', query: { error: 'room-access-denied' } });
+        }
+    }
 };
 
-onMounted(updateRoom);
+const handleRoomKeySubmit = async (key: string) => {
+    roomKeySubmitted.value = true;
+    requiresKey.value = false;
+    await updateRoom(key);
+};
+
+const handleRoomKeyCancel = () => {
+    router.push({ name: 'home' });
+};
+
+onMounted(() => updateRoom());
 
 // Watch for room store changes
 watch(() => roomStore.room, (newRoom) => {
     if (newRoom) {
+        roomData.value = newRoom;
         name.value = newRoom.name;
         players.value = newRoom.players;
         payments.value = getPayments(newRoom);

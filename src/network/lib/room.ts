@@ -13,10 +13,26 @@ class RoomController {
     return response.data as Room[];
   }
 
-  async getRoom(id: number): Promise<Room> {
-    const url: string = `${this.CONTROLLER}/${id}`;
+  async getRoom(id: number, accessToken?: string, roomKey?: string): Promise<Room> {
+    let url: string = `${this.CONTROLLER}/${id}`;
+    const params = new URLSearchParams();
+    
+    // Add access token as query parameter if provided
+    if (accessToken) {
+      params.append('token', accessToken);
+    }
+    
+    // Add room key as query parameter if provided
+    if (roomKey) {
+      params.append('key', roomKey);
+    }
+    
+    // Add params to URL if any exist
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
     const response = await axiosClient.get(url);
-
     return response.data as Room;
   }
 
@@ -27,10 +43,40 @@ class RoomController {
     return response.data as Room;
   }
 
-  async closeRoom(id: number, playersResults: PlayerResult[]): Promise<void> {
-    const url: string = `${this.CONTROLLER}/close/${id}`;
+  async closeRoom(id: number, playersResults: PlayerResult[], accessToken?: string, roomKey?: string): Promise<void> {
+    let url: string = `${this.CONTROLLER}/close/${id}`;
+    const params = new URLSearchParams();
+    
+    // Add access token as query parameter if provided
+    if (accessToken) {
+      params.append('token', accessToken);
+    }
+    
+    // Add room key as query parameter if provided
+    if (roomKey) {
+      params.append('key', roomKey);
+    }
+    
+    // Add params to URL if any exist
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
 
     await axiosClient.put(url, playersResults);
+  }
+
+  async regenerateAccessToken(id: number): Promise<string> {
+    const url: string = `${this.CONTROLLER}/${id}/regenerate-token`;
+    const response = await axiosClient.put(url);
+    
+    return response.data.accessToken;
+  }
+
+  // Generate a shareable URL for a room
+  getShareableUrl(roomId: number, accessToken: string): string {
+    // Get the base URL from the current window location
+    const baseUrl = `${window.location.protocol}//${window.location.host}`;
+    return `${baseUrl}/room/${roomId}?token=${accessToken}`;
   }
 }
 
