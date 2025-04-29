@@ -6,7 +6,7 @@
             </v-icon>
         </template>
         <v-list-item-title class="text-subtitle-2" data-cy="payment-item-player">{{ payment.playerName
-        }}</v-list-item-title>
+            }}</v-list-item-title>
         <template v-slot:append>
             <div class="d-flex align-center">
                 <span class="text-subtitle-2 font-weight-medium mr-4"
@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ExchangeDirectionEnum } from '@/types/payment/ExchangeDirectionEnum';
+import { ExchangeDirectionEnum } from '@/types/exchange/ExchangeDirectionEnum';
 
 interface Payment {
     playerName: string;

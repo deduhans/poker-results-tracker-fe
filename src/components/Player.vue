@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto my-0 player-card" :class="{ 'assigned-user': player.user }">
+  <v-card class="mx-auto my-0 player-card" :class="{ 'assigned-user': player.userId }">
     <v-card-item>
       <!-- Player Name and Details -->
       <v-row class="mb-0">
@@ -7,14 +7,14 @@
           <v-icon v-if="player.role === PlayerRoleEnum.Host" color="warning" icon="mdi-crown" size="small"></v-icon>
           <v-icon v-else-if="player.role === PlayerRoleEnum.Admin" color="success" icon="mdi-shield-account"
             size="small"></v-icon>
-          <v-icon v-else :color="player.user ? 'primary' : 'grey'" icon="mdi-account" size="small"></v-icon>
+          <v-icon v-else :color="player.userId ? 'primary' : 'grey'" icon="mdi-account" size="small"></v-icon>
         </v-col>
         <v-col>
           <div class="d-flex flex-column">
             <v-card-title class="text-subtitle-1 py-0 font-weight-bold d-flex align-center">
               {{ player.name }}
-              <span v-if="player.user" class="text-caption ml-1">
-                ({{ player.user.username }})
+              <span v-if="player.username" class="text-caption ml-1">
+                ({{ player.username }})
               </span>
               <div class="ml-auto d-flex">
                 <v-btn v-if="isOpened() && canSetPlayerAsAdmin" @click="setAsAdmin" color="success" variant="outlined"
@@ -33,7 +33,7 @@
       </v-row>
 
       <!-- Financial Details -->
-      <v-row class="my-0">
+      <v-row v-if="isOpened()" class="my-0">
         <v-col cols="6" class="py-2">
           <div class="d-flex flex-column">
             <div class="text-caption text-medium-emphasis">Spent</div>
@@ -51,6 +51,20 @@
           </v-btn>
         </v-col>
       </v-row>
+      <!-- Total Cash Out (visible only when room is closed) -->
+      <v-row v-else class="my-0">
+        <v-col cols="12" class="py-2">
+          <div class="d-flex flex-column">
+            <div class="text-caption text-medium-emphasis">Total Cash Out</div>
+            <div :class="[
+              'text-body-1 font-weight-bold',
+              totalCashOut() > 0 ? 'text-success' : totalCashOut() < 0 ? 'text-error' : ''
+            ]">
+              {{ formatCurrency(totalCashOut()) }}
+            </div>
+          </div>
+        </v-col>
+      </v-row>
     </v-card-item>
   </v-card>
 </template>
@@ -61,8 +75,8 @@ import RoomController from '@/network/lib/room';
 import PlayerController from '@/network/lib/player';
 import { useUserStore } from '@/stores/user';
 import { useRoomStore } from '@/stores/room';
-import type { CreateExchange } from '@/types/payment/CreateExchange';
-import { ExchangeDirectionEnum } from '@/types/payment/ExchangeDirectionEnum';
+import type { CreateExchange } from '@/types/exchange/CreateExchange';
+import { ExchangeDirectionEnum } from '@/types/exchange/ExchangeDirectionEnum';
 import type { Player } from '@/types/player/Player';
 import { PlayerRoleEnum } from '@/types/player/PlayerRole';
 import { computed, ref } from 'vue';
@@ -88,15 +102,14 @@ const props = defineProps<{
 
 // Check if current user is assigned to any player in this room
 const isCurrentUserInRoom = computed(() => {
-  return roomStore.room?.players.some(p => p.user && p.user.id === userStore.userId);
+  return roomStore.room?.players.some(p => p.userId === userStore.userId);
 });
 
 // Check if current user is the host of the room
 const isCurrentUserHost = computed(() => {
   return roomStore.room?.players.some(p =>
     p.role === PlayerRoleEnum.Host &&
-    p.user &&
-    p.user.id === userStore.userId
+    p.userId === userStore.userId
   );
 });
 
@@ -105,7 +118,7 @@ const canBeAssignedToUser = computed(() => {
   return isOpened() &&
     userStore.userId &&
     !isCurrentUserInRoom.value &&
-    !props.player.user;
+    !props.player.userId;
 });
 
 // Can the current user set this player as admin?
@@ -114,7 +127,7 @@ const canSetPlayerAsAdmin = computed(() => {
     isCurrentUserHost.value &&
     props.player.role !== PlayerRoleEnum.Host &&
     props.player.role !== PlayerRoleEnum.Admin &&
-    !!props.player.user; // Only if player is assigned to a user
+    !!props.player.userId;
 });
 
 const createPayment = async () => {
@@ -192,6 +205,11 @@ const totalIncome = () => {
     });
 
   return total.value;
+};
+
+const totalCashOut = () => {
+  // Total Cash Out is Income - Spent (profit/loss)
+  return totalIncome() - totalSpend();
 };
 
 const formatCurrency = (value: number) => {

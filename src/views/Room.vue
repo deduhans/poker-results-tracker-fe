@@ -1,13 +1,8 @@
 <template>
     <v-container fluid class="pa-3">
         <!-- Room Key Dialog -->
-        <RoomKeyDialog
-            v-if="requiresKey"
-            :roomId="Number(id)"
-            :accessToken="accessTokenFromUrl"
-            @submit="handleRoomKeySubmit"
-            @cancel="handleRoomKeyCancel"
-        />
+        <RoomKeyDialog v-if="requiresKey" :roomId="Number(id)" :accessToken="accessTokenFromUrl"
+            @submit="handleRoomKeySubmit" @cancel="handleRoomKeyCancel" />
 
         <v-row justify="space-between" align="center" class="mb-4 px-2">
             <v-card-title class="text-h4" data-cy="room-header">{{ name }}</v-card-title>
@@ -26,10 +21,10 @@
                             <v-col cols="6">
                                 <div class="d-flex flex-column">
                                     <v-card-subtitle class="py-1" data-cy="room-exchange">Exchange: {{ exchange
-                                        }}</v-card-subtitle>
+                                    }}</v-card-subtitle>
                                     <v-card-subtitle class="py-1" data-cy="room-total-money">Total Money: {{
                                         formatCurrency(capacity)
-                                        }}</v-card-subtitle>
+                                    }}</v-card-subtitle>
                                     <v-card-subtitle class="py-1" data-cy="room-total-chips">Total Chips: {{
                                         formatNumber(chipsCapacity) }}</v-card-subtitle>
                                 </div>
@@ -37,9 +32,9 @@
                             <v-col cols="6">
                                 <div class="d-flex flex-column">
                                     <v-card-subtitle class="py-1" data-cy="room-status">Status: {{ status
-                                        }}</v-card-subtitle>
+                                    }}</v-card-subtitle>
                                     <v-card-subtitle class="py-1" data-cy="room-created">Created: {{ created
-                                        }}</v-card-subtitle>
+                                    }}</v-card-subtitle>
                                     <v-card-subtitle class="py-1" data-cy="room-players-count">Players: {{
                                         players?.length || 0 }}</v-card-subtitle>
                                 </div>
@@ -111,8 +106,8 @@ import RoomController from '@/network/lib/room';
 import { useRoomStore } from '@/stores/room';
 import { useUserStore } from '@/stores/user';
 import type { Room } from '@/types/room/Room';
-import type { ExchangeDetails } from '@/types/payment/ExchangeDetails';
-import { ExchangeDirectionEnum } from '@/types/payment/ExchangeDirectionEnum';
+import type { ExchangeDetails } from '@/types/exchange/ExchangeDetails';
+import { ExchangeDirectionEnum } from '@/types/exchange/ExchangeDirectionEnum';
 import { onMounted, ref, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import currency from 'currency.js';
@@ -145,16 +140,16 @@ const updateRoom = async (roomKey?: string) => {
     try {
         // Get access token from URL query parameter if available
         const accessToken = route.query.token as string | undefined;
-        
+
         // Fetch room data with the access token and room key if available
         const room: Room = await roomController.getRoom(Number(props.id), accessToken, roomKey);
-        
+
         // If the room requires a key and we haven't submitted one yet, show the key dialog
         if (room.requiresKey && !roomKeySubmitted.value) {
             requiresKey.value = true;
             return;
         }
-        
+
         // Key is valid or not required, continue with room data
         requiresKey.value = false;
         roomStore.setRoom(room);
@@ -171,7 +166,7 @@ const updateRoom = async (roomKey?: string) => {
         chipsCapacity.value = getChipsCapacity(room);
     } catch (error: any) {
         console.error('Error loading room:', error);
-        
+
         // If we get a 403 error, it means the room is invisible and requires an access token
         if (error.response?.status === 403) {
             router.push({ name: 'home', query: { error: 'room-access-denied' } });

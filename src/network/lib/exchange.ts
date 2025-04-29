@@ -1,6 +1,6 @@
-import type { CreateExchange } from '@/types/payment/CreateExchange';
+import type { CreateExchange } from '@/types/exchange/CreateExchange';
 import axiosClient from '../apiClient';
-import type { Exchange } from '@/types/payment/Exchange';
+import type { Exchange } from '@/types/exchange/Exchange';
 
 class ExchangeController {
   private readonly CONTROLLER = '/exchanges';

@@ -16,7 +16,11 @@
     "test:e2e:login": "start-server-and-test 'npm run dev' http://localhost:3001 'cypress run --spec \"cypress/e2e/login.cy.ts\"'",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "test:component": "cypress run --component"
+    "test:component": "cypress run --component",
+    "playwright": "playwright test",
+    "playwright:ui": "playwright test --ui",
+    "playwright:report": "playwright show-report",
+    "playwright:debug": "playwright test --debug"
   },
   "dependencies": {
     "@faker-js/faker": "^9.4.0",
@@ -34,6 +38,7 @@
   "devDependencies": {
     "@cypress/vite-dev-server": "^6.0.2",
     "@cypress/vue": "^6.0.2",
+    "@playwright/test": "^1.52.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/jsdom": "^21.1.7",
     "@types/node": "^20.17.0",

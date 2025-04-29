@@ -14,7 +14,8 @@ export const extractErrorMessage = (error: unknown, defaultMessage: string = 'An
   // Handle Axios errors
   if (isAxiosError(error)) {
     // Try to get the error message from the response
-    const responseMessage = error.response?.data?.message;
+    const responseData = error.response?.data as { message?: string | string[] };
+    const responseMessage = responseData?.message;
     
     // If we have a specific message from the server, use it
     if (responseMessage) {
