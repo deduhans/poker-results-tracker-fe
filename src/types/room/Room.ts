@@ -9,10 +9,8 @@ export interface Room {
     currency: CurrencyEnum;
     baseBuyIn: number;
     isVisible: boolean;
-    roomKey?: string;
     accessToken?: string;
     status: RoomStatusEnum;
     players: Player[];
     createdAt: Date;
-    requiresKey?: boolean;
 }

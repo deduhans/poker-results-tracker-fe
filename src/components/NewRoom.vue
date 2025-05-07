@@ -27,13 +27,6 @@
           <v-text-field v-model="baseBuyIn" label="Base Buy-In" type="number" :rules="baseBuyInRules" required
             :disabled="loading" :hint="`Default buy-in amount in ${currency}`" persistent-hint
             data-cy="room-base-buy-in-input"></v-text-field>
-
-          <v-switch v-model="isVisible" label="Visible in Room List" color="primary" :disabled="loading"
-            data-cy="room-is-visible-switch"></v-switch>
-
-          <v-text-field v-model="roomKey" label="Room Key (4 digits)" type="number" :rules="roomKeyRules"
-            :disabled="loading" hint="Optional 4-digit key to join this room" persistent-hint maxlength="4"
-            data-cy="room-key-input"></v-text-field>
         </v-form>
       </v-card-text>
 
@@ -69,8 +62,6 @@ const name = ref('');
 const exchange = ref<number>(10);
 const currency = ref<CurrencyEnum>(CurrencyEnum.USD);
 const baseBuyIn = ref<number>(50);
-const isVisible = ref(true);
-const roomKey = ref('');
 const valid = ref(false);
 const loading = ref(false);
 const error = ref(false);
@@ -101,10 +92,6 @@ const currencyRules = [
   (v: CurrencyEnum) => Object.values(CurrencyEnum).includes(v) || 'Invalid currency',
 ];
 
-const roomKeyRules = [
-  (v: string) => !v || /^\d{4}$/.test(v) || 'Room key must be exactly 4 digits',
-];
-
 const openDialog = () => {
   resetForm();
   dialog.value = true;
@@ -122,8 +109,6 @@ const resetForm = () => {
   exchange.value = 10;
   currency.value = CurrencyEnum.USD;
   baseBuyIn.value = 50;
-  isVisible.value = true;
-  roomKey.value = '';
   error.value = false;
   errorMessage.value = '';
   valid.value = false;
@@ -145,19 +130,14 @@ const createRoom = async () => {
       hostId: userStore.userId,
       currency: currency.value,
       baseBuyIn: Number(baseBuyIn.value),
-      isVisible: isVisible.value,
+      isVisible: true, // Always visible since we don't have the toggle anymore
     };
-
-    // Only include roomKey if provided
-    if (roomKey.value) {
-      createRoomDto.roomKey = roomKey.value.trim();
-    }
 
     const room: Room = await roomController.createRoom(createRoomDto);
     dialog.value = false;
     
-    // If the room is invisible, include the access token in the route
-    if (!room.isVisible && room.accessToken) {
+    // Include access token in route if available
+    if (room.accessToken) {
       router.push({ 
         name: 'room', 
         params: { id: room.id },

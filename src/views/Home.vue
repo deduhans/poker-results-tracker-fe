@@ -12,8 +12,8 @@
 		<v-progress-linear v-if="loading" indeterminate color="primary" data-cy="loading-indicator"></v-progress-linear>
 
 		<v-col v-else>
-			<RoomList :rooms="openRooms || []" listName="Open Rooms" data-cy="open-rooms-list" />
-			<RoomList :rooms="closedRooms || []" listName="Closed Rooms" data-cy="closed-rooms-list" />
+			<RoomList :rooms="openRooms || []" listName="My rooms" data-cy="open-rooms-list" />
+			<RoomList :rooms="closedRooms || []" listName="Previous rooms" data-cy="closed-rooms-list" />
 		</v-col>
 	</v-container>
 </template>

@@ -42,6 +42,7 @@ test.describe('Room API', () => {
     if (foundRoom) {
       expect(foundRoom).toHaveProperty('id');
       expect(foundRoom.status).toBe('opened');
+      expect(foundRoom).not.toHaveProperty('players');
     }
   });
 

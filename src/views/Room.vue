@@ -1,9 +1,5 @@
 <template>
     <v-container fluid class="pa-3">
-        <!-- Room Key Dialog -->
-        <RoomKeyDialog v-if="requiresKey" :roomId="Number(id)" :accessToken="accessTokenFromUrl"
-            @submit="handleRoomKeySubmit" @cancel="handleRoomKeyCancel" />
-
         <v-row justify="space-between" align="center" class="mb-4 px-2">
             <v-card-title class="text-h4" data-cy="room-header">{{ name }}</v-card-title>
             <div class="d-flex align-center">
@@ -101,11 +97,11 @@ import NewPlayer from '@/components/NewPlayer.vue';
 import PaymentInfo from '@/components/PaymentInfo.vue';
 import Player from '@/components/Player.vue';
 import ShareRoom from '@/components/ShareRoom.vue';
-import RoomKeyDialog from '@/components/RoomKeyDialog.vue';
 import RoomController from '@/network/lib/room';
 import { useRoomStore } from '@/stores/room';
 import { useUserStore } from '@/stores/user';
 import type { Room } from '@/types/room/Room';
+import type { Exchange } from '@/types/exchange/Exchange';
 import type { ExchangeDetails } from '@/types/exchange/ExchangeDetails';
 import { ExchangeDirectionEnum } from '@/types/exchange/ExchangeDirectionEnum';
 import { onMounted, ref, watch, computed } from 'vue';
@@ -120,38 +116,29 @@ const userStore = useUserStore();
 
 const name = ref();
 const players = ref();
-const payments = ref();
+const payments = ref<ExchangeDetails[]>([]);
 const status = ref();
 const roomId = ref<number | null>(null);
 const exchange = ref();
 const created = ref();
-const capacity = ref();
-const chipsCapacity = ref();
+const capacity = ref<number>(0);
+const chipsCapacity = ref<number>(0);
 const roomData = ref<Room | null>(null);
-const requiresKey = ref(false);
-const roomKeySubmitted = ref(false);
 const accessTokenFromUrl = computed(() => route.query.token as string | undefined);
 
 const props = defineProps<{
     id: string
 }>();
 
-const updateRoom = async (roomKey?: string) => {
+const updateRoom = async () => {
     try {
         // Get access token from URL query parameter if available
         const accessToken = route.query.token as string | undefined;
 
-        // Fetch room data with the access token and room key if available
-        const room: Room = await roomController.getRoom(Number(props.id), accessToken, roomKey);
+        // Fetch room data with the access token
+        const room: Room = await roomController.getRoom(Number(props.id), accessToken);
 
-        // If the room requires a key and we haven't submitted one yet, show the key dialog
-        if (room.requiresKey && !roomKeySubmitted.value) {
-            requiresKey.value = true;
-            return;
-        }
-
-        // Key is valid or not required, continue with room data
-        requiresKey.value = false;
+        // Set room data
         roomStore.setRoom(room);
         roomData.value = room;
 
@@ -174,16 +161,6 @@ const updateRoom = async (roomKey?: string) => {
     }
 };
 
-const handleRoomKeySubmit = async (key: string) => {
-    roomKeySubmitted.value = true;
-    requiresKey.value = false;
-    await updateRoom(key);
-};
-
-const handleRoomKeyCancel = () => {
-    router.push({ name: 'home' });
-};
-
 onMounted(() => updateRoom());
 
 // Watch for room store changes
@@ -203,60 +180,69 @@ watch(() => roomStore.room, (newRoom) => {
 });
 
 const getPayments = (room: Room): ExchangeDetails[] => {
-    const mappedPayments: ExchangeDetails[] = room.players.flatMap((player) => {
-        return player.exchanges?.map((payment) => ({
-            id: payment.id,
-            amount: payment.cashAmount,
-            date: formatDate(new Date(payment.createdAt)),
-            playerName: player.name,
-            type: payment.direction as ExchangeDirectionEnum,
-        }));
-    }).filter((payment) => payment !== undefined);
-    mappedPayments.sort((a, b) => a.id - b.id);
-    return mappedPayments;
+    const allPayments: ExchangeDetails[] = [];
+
+    if (room.players) {
+        room.players.forEach(player => {
+            if (player.exchanges) {
+                player.exchanges.forEach(exchange => {
+                    allPayments.push({
+                        id: exchange.id,
+                        amount: parseFloat(exchange.cashAmount),
+                        date: formatDate(new Date(exchange.createdAt)),
+                        playerName: player.name,
+                        type: exchange.direction
+                    });
+                });
+            }
+        });
+    }
+
+    return allPayments.sort((a, b) => b.id - a.id);
 };
 
 const getCapacity = (room: Room): number => {
-    let total = currency(0);
+    let totalBuyIn = 0;
+    let totalCashOut = 0;
 
-    getPayments(room).forEach(payment => {
-        // Handle null, undefined or empty string with a default of '0'
-        const amount = payment.amount || '0';
+    if (room.players) {
+        room.players.forEach(player => {
+            if (player.exchanges) {
+                player.exchanges.forEach(exchange => {
+                    const amount = parseFloat(exchange.cashAmount);
+                    if (exchange.direction === ExchangeDirectionEnum.BuyIn) {
+                        totalBuyIn += amount;
+                    } else if (exchange.direction === ExchangeDirectionEnum.CashOut) {
+                        totalCashOut += amount;
+                    }
+                });
+            }
+        });
+    }
 
-        // For BuyIn, add the amount; for CashOut, subtract it
-        if (payment.type === ExchangeDirectionEnum.BuyIn) {
-            total = total.add(amount);
-        } else {
-            total = total.subtract(amount);
-        }
-    });
-
-    return total.value;
+    return totalBuyIn - totalCashOut;
 };
 
 const getChipsCapacity = (room: Room): number => {
-    // Use Math.round to ensure we return an integer
-    return Math.round(currency(getCapacity(room)).multiply(room.exchange).value);
+    return getCapacity(room) * room.exchange;
 };
 
 const formatDate = (date: Date) => {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${hours}:${minutes} ${month}/${day}`;
+    return new Intl.DateTimeFormat('default', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(date);
 };
 
 const formatCurrency = (value: number) => {
-    return currency(value, { symbol: '€', decimal: '.', separator: ',' }).format();
+    return currency(value, { symbol: '€', separator: ',', decimal: '.', precision: 2 }).format();
 };
 
 const formatNumber = (value: number) => {
-    // For chip counts, we want integers with no decimal places
-    return new Intl.NumberFormat('en-US', {
-        maximumFractionDigits: 0,
-        minimumFractionDigits: 0
-    }).format(value);
+    return new Intl.NumberFormat().format(value);
 };
 
 const isOpened = () => {
@@ -267,18 +253,17 @@ const sortedPlayers = computed(() => {
     if (!players.value) return [];
 
     return [...players.value].sort((a, b) => {
-        // First, check if either player belongs to the current user - they go to the top
-        const isPlayerA_CurrentUser = a.user && a.user.id === userStore.userId;
-        const isPlayerB_CurrentUser = b.user && b.user.id === userStore.userId;
-
-        // If player A is the current user's player, it comes first
-        if (isPlayerA_CurrentUser && !isPlayerB_CurrentUser) return -1;
-
-        // If player B is the current user's player, it comes first
-        if (!isPlayerA_CurrentUser && isPlayerB_CurrentUser) return 1;
-
-        // Otherwise, sort by creation date (oldest first - ascending)
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        // Sort by role: Host first, then Admin, then Player
+        const roleOrder: Record<string, number> = { host: 0, admin: 1, player: 2 };
+        const roleA = roleOrder[a.role.toLowerCase()] || 3;
+        const roleB = roleOrder[b.role.toLowerCase()] || 3;
+        
+        if (roleA !== roleB) {
+            return roleA - roleB;
+        }
+        
+        // Then by name alphabetically
+        return a.name.localeCompare(b.name);
     });
 });
 </script>

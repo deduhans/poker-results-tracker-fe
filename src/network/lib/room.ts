@@ -13,18 +13,13 @@ class RoomController {
     return response.data as Room[];
   }
 
-  async getRoom(id: number, accessToken?: string, roomKey?: string): Promise<Room> {
+  async getRoom(id: number, accessToken?: string): Promise<Room> {
     let url: string = `${this.CONTROLLER}/${id}`;
     const params = new URLSearchParams();
     
     // Add access token as query parameter if provided
     if (accessToken) {
       params.append('token', accessToken);
-    }
-    
-    // Add room key as query parameter if provided
-    if (roomKey) {
-      params.append('key', roomKey);
     }
     
     // Add params to URL if any exist
@@ -43,18 +38,13 @@ class RoomController {
     return response.data as Room;
   }
 
-  async closeRoom(id: number, playersResults: PlayerResult[], accessToken?: string, roomKey?: string): Promise<void> {
+  async closeRoom(id: number, playersResults: PlayerResult[], accessToken?: string): Promise<void> {
     let url: string = `${this.CONTROLLER}/close/${id}`;
     const params = new URLSearchParams();
     
     // Add access token as query parameter if provided
     if (accessToken) {
       params.append('token', accessToken);
-    }
-    
-    // Add room key as query parameter if provided
-    if (roomKey) {
-      params.append('key', roomKey);
     }
     
     // Add params to URL if any exist

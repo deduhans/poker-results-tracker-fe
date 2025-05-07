@@ -6,11 +6,13 @@
         <router-view></router-view>
       </v-container>
     </v-main>
+    <BottomNavigation v-if="userStore.userId" />
   </v-app>
 </template>
 
 <script lang="ts" setup>
 import Navbar from '@/components/Navbar.vue';
+import BottomNavigation from '@/components/BottomNavigation.vue';
 import { useUserStore } from '@/stores/user';
 import { useRoomStore } from './stores/room';
 import { useAuthStore } from '@/stores/auth';

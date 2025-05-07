@@ -31,8 +31,8 @@
             URL copied to clipboard!
           </v-alert>
           
-          <v-alert v-if="!room.isVisible" type="info" density="compact" variant="tonal" class="mb-2">
-            This is an invisible room. Only people with this link can access it.
+          <v-alert type="info" density="compact" variant="tonal" class="mb-2">
+            Share this link or QR code with players to join the room.
           </v-alert>
 
           <v-btn 
@@ -47,7 +47,7 @@
           </v-btn>
 
           <v-btn
-            v-if="isHost && !room.isVisible"
+            v-if="isHost"
             block
             color="secondary"
             @click="regenerateToken"
@@ -90,12 +90,12 @@ const roomUrl = computed(() => {
   // Get the base URL from the current window location
   const baseUrl = window.location.origin;
   
-  // For invisible rooms, include the access token
-  if (!props.room.isVisible && props.room.accessToken) {
+  // Always include the access token if available
+  if (props.room.accessToken) {
     return `${baseUrl}/room/${props.room.id}?token=${props.room.accessToken}`;
   }
   
-  // For visible rooms, just use the room ID
+  // If no access token, just use the room ID
   return `${baseUrl}/room/${props.room.id}`;
 });
 

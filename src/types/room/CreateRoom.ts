@@ -7,5 +7,4 @@ export interface CreateRoom {
     currency?: CurrencyEnum;
     baseBuyIn?: number;
     isVisible?: boolean;
-    roomKey?: string;
 }
