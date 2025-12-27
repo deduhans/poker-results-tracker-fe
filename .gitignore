@@ -27,3 +27,5 @@ coverage
 
 .env
 .env.docker
+# Local Netlify folder
+.netlify

@@ -32,18 +32,19 @@ export function useAuth() {
     errorMessage.value = '';
 
     try {
-      const user = await authController.login(auth);
-      
-      // Set user in user store
-      userStore.setUser({ 
-        userId: user.userId, 
-        name: user.username 
+      const response = await authController.login(auth);
+
+      if (response.access_token) {
+        authStore.setToken(response.access_token);
+      }
+
+      userStore.setUser({
+        userId: response.userId,
+        name: response.username
       });
-      
-      // Set authenticated in auth store
+
       authStore.setAuthenticated(true);
-      
-      console.log('User logged in:', user);
+
       return true;
     } catch (e: any) {
       error.value = true;
@@ -66,13 +67,13 @@ export function useAuth() {
     try {
       // Create the user
       const newUser: User = await userController.createUser(createUser);
-      
+
       // Log in with the new credentials
       const auth: Auth = {
         username: createUser.username,
         password: createUser.password
       };
-      
+
       await login(auth);
       return true;
     } catch (e: any) {
@@ -112,13 +113,13 @@ export function useAuth() {
    */
   const checkAuthStatus = async (): Promise<boolean> => {
     loading.value = true;
-    
+
     try {
       // First check if we have a valid session in the auth store
       if (authStore.isAuthenticated && authStore.isSessionValid) {
         return true;
       }
-      
+
       // If not, try to initialize from the backend
       return await authStore.initializeAuth();
     } catch (e) {
@@ -134,13 +135,13 @@ export function useAuth() {
     error,
     errorMessage,
     isAuthenticated,
-    
+
     // Actions
     login,
     register,
     logout,
     checkAuthStatus,
-    
+
     // Validation rules
     usernameRules,
     passwordRules,
