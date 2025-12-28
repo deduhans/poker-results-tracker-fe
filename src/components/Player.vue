@@ -136,7 +136,7 @@ const canSetPlayerAsAdmin = computed(() => {
 });
 
 const createBuyIn = async () => {
-  if (!userStore.userId) {
+  if (!userStore.userId || !roomStore.room) {
     return;
   }
 
@@ -144,7 +144,7 @@ const createBuyIn = async () => {
   const newExchange: CreateExchange = {
     roomId: props.roomId,
     playerId: props.player.id,
-    amount: 50,
+    amount: roomStore.room.baseBuyIn,
     type: ExchangeDirectionEnum.BuyIn,
   };
 
@@ -155,15 +155,16 @@ const createBuyIn = async () => {
 };
 
 const createCashOut = async () => {
-  if (!userStore.userId) {
+  if (!userStore.userId || !roomStore.room) {
     return;
   }
 
   cashOutLoading.value = true;
+  const cashOutAmount = roomStore.room.baseBuyIn * roomStore.room.exchange;
   const newExchange: CreateExchange = {
     roomId: props.roomId,
     playerId: props.player.id,
-    amount: 50,
+    amount: cashOutAmount,
     type: ExchangeDirectionEnum.CashOut,
   };
 
