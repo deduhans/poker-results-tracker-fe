@@ -45,9 +45,13 @@
             <div class="text-caption text-medium-emphasis">Income</div>
             <div class="text-body-2 font-weight-medium">{{ formatCurrency(totalIncome()) }}</div>
           </div>
-          <v-btn v-if="isOpened()" @click="createPayment" size="x-small" color="primary" variant="text"
-            icon="mdi-cash-plus" class="ml-auto add-payment-btn align-self-center" :loading="paymentLoading"
-            title="Add Payment" data-cy="create-payment-button">
+          <v-btn v-if="isOpened()" @click="createBuyIn" size="x-small" color="primary" variant="text"
+            icon="mdi-cash-plus" class="ml-auto add-payment-btn align-self-center" :loading="buyInLoading"
+            title="Buy In" data-cy="create-buyin-button">
+          </v-btn>
+          <v-btn v-if="isOpened()" @click="createCashOut" size="x-small" color="success" variant="text"
+            icon="mdi-cash-minus" class="add-payment-btn align-self-center" :loading="cashOutLoading" title="Cash Out"
+            data-cy="create-cashout-button">
           </v-btn>
         </v-col>
       </v-row>
@@ -92,7 +96,8 @@ const router = useRouter();
 const loading = ref(false);
 const assignLoading = ref(false);
 const setAdminLoading = ref(false);
-const paymentLoading = ref(false);
+const buyInLoading = ref(false);
+const cashOutLoading = ref(false);
 
 const props = defineProps<{
   roomId: number,
@@ -130,12 +135,12 @@ const canSetPlayerAsAdmin = computed(() => {
     !!props.player.userId;
 });
 
-const createPayment = async () => {
+const createBuyIn = async () => {
   if (!userStore.userId) {
     return;
   }
 
-  paymentLoading.value = true;
+  buyInLoading.value = true;
   const newExchange: CreateExchange = {
     roomId: props.roomId,
     playerId: props.player.id,
@@ -146,7 +151,26 @@ const createPayment = async () => {
   await exchangeController.createExchange(newExchange);
   const updatedRoom = await roomController.getRoom(props.roomId);
   roomStore.setRoom(updatedRoom);
-  paymentLoading.value = false;
+  buyInLoading.value = false;
+};
+
+const createCashOut = async () => {
+  if (!userStore.userId) {
+    return;
+  }
+
+  cashOutLoading.value = true;
+  const newExchange: CreateExchange = {
+    roomId: props.roomId,
+    playerId: props.player.id,
+    amount: 50,
+    type: ExchangeDirectionEnum.CashOut,
+  };
+
+  await exchangeController.createExchange(newExchange);
+  const updatedRoom = await roomController.getRoom(props.roomId);
+  roomStore.setRoom(updatedRoom);
+  cashOutLoading.value = false;
 };
 
 const assignToUser = async () => {
